@@ -5,15 +5,15 @@ const AuthContext = createContext(null);
 // TODO: REMOVE WHEN PROPER AUTHENTICATION IS CREATED
 // Simple test credentials
 const ADMIN_TEST_CREDENTIALS = {
-  username: 'admin',
+  email: 'admin@test.com',
   password: 'password123'
 };
 const STAFF_TEST_CREDENTIALS = {
-  username: 'staff',
+  email: 'staff@test.com',
   password: 'password123'
 };
 const GUEST_TEST_CREDENTIALS = {
-  username: 'guest',
+  email: 'guest@test.com',
   password: 'password123'
 };
 
@@ -53,35 +53,38 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = (username, password) => {
+  const login = (email, password) => {
     //TODO: UPDATE WHEN AUTHENTICATION IS COMPLETED. SHOULD HAVE USER INFORMATION FROM DB CONTAINING USER INFORMATION
     let testUser = null;
     
     // Check admin credentials
-    if (username === ADMIN_TEST_CREDENTIALS.username && password === ADMIN_TEST_CREDENTIALS.password) {
+    if (email === ADMIN_TEST_CREDENTIALS.email && password === ADMIN_TEST_CREDENTIALS.password) {
       testUser = {
         id: '1',
-        username: username,
-        role: 'admin',
-        email: 'admin@test.com'
+        email: email,
+        name: 'Admin User',
+        phone: '+1 (555) 001-0001',
+        role: 'admin'
       };
     }
     // Check staff credentials
-    else if (username === STAFF_TEST_CREDENTIALS.username && password === STAFF_TEST_CREDENTIALS.password) {
+    else if (email === STAFF_TEST_CREDENTIALS.email && password === STAFF_TEST_CREDENTIALS.password) {
       testUser = {
         id: '2',
-        username: username,
-        role: 'staff',
-        email: 'staff@test.com'
+        email: email,
+        name: 'Staff User',
+        phone: '+1 (555) 002-0002',
+        role: 'admin'
       };
     }
     // Check guest credentials
-    else if (username === GUEST_TEST_CREDENTIALS.username && password === GUEST_TEST_CREDENTIALS.password) {
+    else if (email === GUEST_TEST_CREDENTIALS.email && password === GUEST_TEST_CREDENTIALS.password) {
       testUser = {
         id: '3',
-        username: username,
-        role: 'guest',
-        email: 'guest@test.com'
+        email: email,
+        name: 'Guest User',
+        phone: '+1 (555) 003-0003',
+        role: 'user'
       };
     }
     
@@ -94,7 +97,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       setAuthError({
         type: 'invalid_credentials',
-        message: 'Invalid username or password'
+        message: 'Invalid email or password'
       });
       return null;
     }

@@ -7,6 +7,7 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 const LoginPage = React.lazy(() => import('./pages/Login'));
+const RegisterPage = React.lazy(() => import('./pages/Register'));
 const BookRoom = React.lazy(() => import('./pages/BookRoom'));
 const MyReservations = React.lazy(() => import('./pages/MyReservation'));
 const Home = React.lazy(() => import('./pages/Home'));
@@ -135,6 +136,11 @@ const AuthenticatedApp = () => {
       <Route path="/login" element={
         <React.Suspense fallback={<div className="p-4">Loading...</div>}>
           <LoginPage />
+        </React.Suspense>
+      } />
+      <Route path="/register" element={
+        <React.Suspense fallback={<div className="p-4">Loading...</div>}>
+          <RegisterPage />
         </React.Suspense>
       } />
       <Route path="/" element={<HomeRoute />} />
