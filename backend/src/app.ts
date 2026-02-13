@@ -1,8 +1,8 @@
 import express from "express";
 import authrouter from "./routes/auth";
-import mongodbserver from "mongodb-memory-server"
+import dotenv from "dotenv";
+import { connectDB } from "./config/database";
 import mongoose from "mongoose";
-import dotenv from "dotenv"
 
 dotenv.config();
 const app = express();
@@ -17,11 +17,17 @@ app.get("/", (req, res) => {
     console.log("Response sent");
 });
 
+app.get("/health", (_req, res) => {
+    const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    res.json({
+        status: 'ok',
+        database: dbStatus,
+        timestamp: new Date().toISOString()
+    });
+});
+
 const main = async () => {
-    // for testing only, change memory server to a persistent mongodb server
-    const db_server = await mongodbserver.MongoMemoryServer.create();
-    const uri = db_server.getUri()
-    await mongoose.connect(uri);
+    await connectDB();
 
     app.listen(port, () => {
         console.log(`HotelHub server listening on port ${port}`);
