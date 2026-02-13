@@ -29,8 +29,8 @@ const HomeRoute = () => {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    // If logged in as admin/staff, redirect to dashboard
-    if (isAuthenticated && (user?.role === 'admin' || user?.role === 'staff')) {
+    // If logged in as admin, redirect to dashboard
+    if (isAuthenticated && (user?.role === 'admin')) {
       navigate('/Dashboard', { replace: true });
     }
   }, [isAuthenticated, user, navigate]);
@@ -51,8 +51,8 @@ const ProtectedGuestRoute = ({ Component }) => {
     if (!isAuthenticated) {
       // Not logged in - redirect to login
       navigate('/login', { replace: true });
-    } else if (user?.role === 'admin' || user?.role === 'staff') {
-      // Admin/Staff trying to access guest booking pages - redirect to dashboard
+    } else if (user?.role === 'admin') {
+      // Admin trying to access guest booking pages - redirect to dashboard
       navigate('/Dashboard', { replace: true });
     }
     // Guests can access these pages - no redirect needed
@@ -63,7 +63,7 @@ const ProtectedGuestRoute = ({ Component }) => {
     return null;
   }
   
-  if (user?.role === 'admin' || user?.role === 'staff') {
+  if (user?.role === 'admin') {
     return null;
   }
 
@@ -74,7 +74,7 @@ const ProtectedGuestRoute = ({ Component }) => {
   );
 };
 
-// Protected route for admin/staff pages (Dashboard, Rooms, Guests, Reservations)
+// Protected route for admin pages (Dashboard, Rooms, Guests, Reservations)
 const ProtectedAdminRoute = ({ Component, pageName }) => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -83,19 +83,19 @@ const ProtectedAdminRoute = ({ Component, pageName }) => {
     if (!isAuthenticated) {
       // Not logged in - redirect to login
       navigate('/login', { replace: true });
-    } else if (user?.role === 'guest') {
+    } else if (user?.role === 'user') {
       // Guest trying to access admin pages - redirect to home
       navigate('/', { replace: true });
     }
-    // Admin/Staff can access these pages - no redirect needed
+    // Admin can access these pages - no redirect needed
   }, [isAuthenticated, user, navigate]);
 
-  // Only render if user is authenticated admin/staff
+  // Only render if user is authenticated admin
   if (!isAuthenticated) {
     return null;
   }
   
-  if (user?.role === 'guest') {
+  if (user?.role === 'user') {
     return null;
   }
 

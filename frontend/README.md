@@ -16,6 +16,7 @@ A modern hotel management and booking application built with React, featuring ro
 ## Features
 
 ### Guest Features
+- Create a user account with email registration
 - Browse available hotel rooms
 - Search and filter rooms by check-in/check-out dates and guest count
 - View room details and pricing
@@ -23,7 +24,7 @@ A modern hotel management and booking application built with React, featuring ro
 - Manage personal reservations
 - View booking history
 
-### Admin/Staff Features
+### Admin Features
 - Access protected dashboard
 - Manage rooms inventory
 - View and manage guest information
@@ -31,7 +32,10 @@ A modern hotel management and booking application built with React, featuring ro
 - System management
 
 ### Authentication Features
-- Role-based access control (Guest, Staff, Admin)
+- Email-based authentication (no username required)
+- User registration for guest accounts
+- Role-based access control (User, Admin)
+- User profiles with name, email, phone, and role
 - Secure login/logout
 - Session management with localStorage
 - Protected routes based on user roles
@@ -53,7 +57,7 @@ A modern hotel management and booking application built with React, featuring ro
 
 - **AuthContext**: Manages authentication state, user roles, and login/logout logic
 - **App.jsx**: Main routing configuration with role-based route protection
-- **Layout.jsx**: Sidebar navigation for admin/staff users
+- **Layout.jsx**: Sidebar navigation for admin users
 - **Home.jsx**: Public landing page accessible to all users
 
 ## Authentication & Authorization
@@ -66,14 +70,9 @@ A modern hotel management and booking application built with React, featuring ro
    - Can access BookRoom and MyReservations pages
    - Cannot access admin dashboard pages
 
-2. **Staff**
+2. **Admin**
    - Full access to dashboard and management pages
    - Cannot access guest booking pages
-   - Redirected to Dashboard on login
-
-3. **Admin**
-   - Full system access
-   - Same permissions as Staff
    - Redirected to Dashboard on login
 
 ### Auth Flow
@@ -83,13 +82,16 @@ Unauthenticated User
     ↓
 Home Page (Landing)
     ↓
-Click Login → Login Page
-    ↓
-    ├─ Login as Guest → Redirected to Home
-    ├─ Login as Staff/Admin → Redirected to Dashboard
-    └─ Invalid Credentials → Error message
+├─ Click Login → Login Page
+│   ├─ Login as User → Redirected to Home
+│   ├─ Login as Admin → Redirected to Dashboard
+│   ├─ Invalid Credentials → Error message
+│   └─ Click "Create one" → Register Page
+│       ├─ Fill registration form (name, email, phone, password)
+│       ├─ Registration successful → Redirected to Login
+│       └─ Registration error → Error message
     
-Authenticated Guest
+Authenticated User
     ↓
     ├─ Access Home → Home Page ✓
     ├─ Access BookRoom → BookRoom Page ✓
@@ -97,7 +99,7 @@ Authenticated Guest
     ├─ Access Dashboard → Redirected to Home ✗
     └─ Click Logout → Redirected to Home
     
-Authenticated Staff/Admin
+Authenticated Admin
     ↓
     ├─ Access Home → Redirected to Dashboard
     ├─ Access Dashboard → Dashboard with Sidebar ✓
@@ -125,9 +127,10 @@ hotelhub/
 │   │   └── UserNotRegisteredError.jsx
 │   ├── pages/
 │   │   ├── Home.jsx            # Public landing page
-│   │   ├── Login.jsx           # Login page
-│   │   ├── BookRoom.jsx        # Room booking (Guest only)
-│   │   ├── MyReservation.jsx   # Reservation management (Guest only)
+│   │   ├── Login.jsx           # Email-based login page
+│   │   ├── Register.jsx        # User registration page
+│   │   ├── BookRoom.jsx        # Room booking (User only)
+│   │   ├── MyReservation.jsx   # Reservation management (User only)
 │   │   ├── Dashboard.jsx       # Admin dashboard
 │   │   ├── Rooms.jsx           # Room management
 │   │   ├── Guests.jsx          # Guest management
@@ -193,11 +196,11 @@ hotelhub/
 - **Home** (`/`): Landing page with room showcase and search functionality
 - **Login** (`/login`): Authentication page
 
-### Guest Pages
+### User Pages
 - **BookRoom** (`/BookRoom`): Browse and book available rooms
 - **MyReservations** (`/MyReservations`): View and manage personal reservations
 
-### Admin/Staff Pages
+### Admin Pages
 - **Dashboard** (`/Dashboard`): Main dashboard
 - **Rooms** (`/Rooms`): Manage room inventory
 - **Guests** (`/Guests`): Manage guest information
@@ -205,28 +208,37 @@ hotelhub/
 
 ### Navigation
 - The Navigation Bar is available on the Home page with Login/Logout buttons
-- The Sidebar is available on all admin/staff pages for quick navigation
+- The Sidebar is available on all admin pages for quick navigation
 - Use the back button or navigation links to move between pages
 
 ## Test Credentials
 
 ### Guest Account
 ```
-Username: guest
+Email: guest@test.com
 Password: password123
 ```
 
 ### Staff Account
 ```
-Username: staff
+Email: staff@test.com
 Password: password123
 ```
 
 ### Admin Account
 ```
-Username: admin
+Email: admin@test.com
 Password: password123
 ```
+
+## User Data Structure
+
+User information stored in the application includes:
+- **id**: Unique user identifier
+- **email**: User's email address (used for login)
+- **name**: User's full name
+- **phone**: User's phone number
+- **role**: User role (user or admin)
 
 **Note**: These are test credentials for development. Replace with proper authentication when implementing real backend authentication.
 
@@ -238,40 +250,44 @@ Password: password123
 |-------|------|--------|
 | `/` | All | ✓ (Home redirects admin/staff to Dashboard) |
 | `/login` | All | ✓ |
-| `/BookRoom` | Guest | ✓ |
-| `/BookRoom` | Admin/Staff | ✗ (Redirects to Dashboard) |
-| `/MyReservations` | Guest | ✓ |
-| `/MyReservations` | Admin/Staff | ✗ (Redirects to Dashboard) |
-| `/Dashboard` | Admin/Staff | ✓ |
-| `/Dashboard` | Guest | ✗ (Redirects to Home) |
-| `/Rooms` | Admin/Staff | ✓ |
-| `/Guests` | Admin/Staff | ✓ |
-| `/Reservations` | Admin/Staff | ✓ |
+| `/register` | All | ✓ (User registration only) |
+| `/BookRoom` | User | ✓ |
+| `/BookRoom` | Admin | ✗ (Redirects to Dashboard) |
+| `/MyReservations` | User | ✓ |
+| `/MyReservations` | Admin | ✗ (Redirects to Dashboard) |
+| `/Dashboard` | Admin | ✓ |
+| `/Dashboard` | User | ✗ (Redirects to Home) |
+| `/Rooms` | Admin | ✓ |
+| `/Guests` | Admin | ✓ |
+| `/Reservations` | Admin | ✓ |
 | `/404` | All | ✓ (Auto-shown for undefined routes) |
 
 ### Redirect Behavior
 
 **On Login:**
-- Guest → Home page
-- Staff/Admin → Dashboard page
+- User → Home page
+- Admin → Dashboard page
 
 **On Logout:**
 - All users → Home page
 
 **On Page Access:**
 - Unauthenticated users accessing protected routes → Login page
-- Guests accessing admin routes → Home page
-- Admin/Staff accessing guest routes → Dashboard page
-- Admin/Staff visiting Home → Dashboard page
+- User accessing admin routes → Home page
+- Admin accessing guest routes → Dashboard page
+- Admin visiting Home → Dashboard page
 
 ## Key Features Implemented
 
+- ✅ Email-based authentication (no username)
+- ✅ User self-registration
 - ✅ Role-based access control
 - ✅ Protected routes and redirects
-- ✅ Guest booking system
+- ✅ User booking system
 - ✅ Reservation management
 - ✅ Admin dashboard with sidebar
 - ✅ Authentication state persistence
+- ✅ User profile with name, email, phone
 - ✅ Logout functionality
 - ✅ Navigation guards
 - ✅ User role detection
@@ -279,13 +295,14 @@ Password: password123
 
 ## Future Enhancements
 
-- [ ] Backend API integration
-- [ ] Real authentication system
+- [ ] Backend API integration for user authentication
+- [ ] Email verification for registration
+- [ ] Password reset functionality
 - [ ] Payment processing
 - [ ] Email notifications
 - [ ] Advanced search filters
 - [ ] Room availability calendar
-- [ ] User profile management
+- [ ] User profile editing
 - [ ] Admin analytics and reporting
 
 ## Troubleshooting
@@ -312,5 +329,5 @@ Password: password123
 
 ---
 
-**Last Updated**: February 7, 2026  
-**Version**: 1.0.0
+**Last Updated**: February 13, 2026  
+**Version**: 1.1.0 (Added email-based auth and registration)
