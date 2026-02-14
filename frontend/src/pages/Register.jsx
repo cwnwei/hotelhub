@@ -46,7 +46,7 @@ export default function Register() {
 
     setSubmitting(true)
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ export default function Register() {
           email,
           phone,
           password,
-          role: 'guest',
+          role: 'user',
         }),
       })
 
