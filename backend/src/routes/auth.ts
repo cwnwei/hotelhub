@@ -7,13 +7,15 @@ import { generateAccessToken, generateRefreshToken, UserPayload } from "../utils
 const authrouter = express.Router();
 
 authrouter.post("/register", async (req, res) => {
-    const { email, password, role } = req.body;
+    const { name, email, phone, password, role } = req.body;
 
     const user = await User.findOne({ email })
     if (user) return res.status(400).json("User already exists")
 
     const hashed_password = await bcrypt.hash(password, 10)
     const new_user = await User.create({
+        'full_name': name,
+        phone,
         email,
         'password': hashed_password,
         role,
