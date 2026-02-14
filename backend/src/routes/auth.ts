@@ -45,13 +45,15 @@ authrouter.post("/login", async (req, res) => {
     // save refresh_token to client cookies
     res.cookie("refreshToken", refresh_token, {
         httpOnly: true,
-        secure: true,
-        sameSite: "strict",
+        secure: false, // false for local testinng
+        sameSite: "lax",
+        path: "/auth/refresh",
         maxAge: 7 * 24 * 60 * 60 * 1000,
     })
 
     // return jwt access token
-    res.json({ jwt_token })
+    const { password: remove_password, refreshToken, ...body} = user.toJSON()
+    res.json({jwt_token, ...body})
 })
 
 authrouter.post("/logout", async (req, res) => {

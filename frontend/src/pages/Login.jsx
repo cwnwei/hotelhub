@@ -18,7 +18,7 @@ export default function Login() {
     setSubmitting(false)
     if (loggedInUser) {
       // Redirect based on user role
-      if (loggedInUser.role === 'admin' || loggedInUser.role === 'staff') {
+      if (loggedInUser.role === 'admin') {
         navigate('/Dashboard')
       } else {
         // Guest or other roles go to home
