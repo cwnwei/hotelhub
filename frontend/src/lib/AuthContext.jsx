@@ -2,21 +2,6 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
-// TODO: REMOVE WHEN PROPER AUTHENTICATION IS CREATED
-// Simple test credentials
-const ADMIN_TEST_CREDENTIALS = {
-  email: 'admin@test.com',
-  password: 'password123'
-};
-const STAFF_TEST_CREDENTIALS = {
-  email: 'staff@test.com',
-  password: 'password123'
-};
-const GUEST_TEST_CREDENTIALS = {
-  email: 'guest@test.com',
-  password: 'password123'
-};
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -32,14 +17,14 @@ export const AuthProvider = ({ children }) => {
   const checkAppState = async () => {
     try {
       setAuthError(null);
-      
+
       // Check if there's a stored token in localStorage for testing
       const storedUser = localStorage.getItem('testUser');
       if (storedUser) {
         setUser(JSON.parse(storedUser));
         setIsAuthenticated(true);
       }
-      
+
       setIsLoadingAuth(false);
       setIsLoadingPublicSettings(false);
     } catch (error) {
@@ -53,47 +38,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = (email, password) => {
-    //TODO: UPDATE WHEN AUTHENTICATION IS COMPLETED. SHOULD HAVE USER INFORMATION FROM DB CONTAINING USER INFORMATION
-    let testUser = null;
-    
-    // Check admin credentials
-    if (email === ADMIN_TEST_CREDENTIALS.email && password === ADMIN_TEST_CREDENTIALS.password) {
-      testUser = {
-        id: '1',
-        email: email,
-        name: 'Admin User',
-        phone: '+1 (555) 001-0001',
-        role: 'admin'
-      };
-    }
-    // Check staff credentials
-    else if (email === STAFF_TEST_CREDENTIALS.email && password === STAFF_TEST_CREDENTIALS.password) {
-      testUser = {
-        id: '2',
-        email: email,
-        name: 'Staff User',
-        phone: '+1 (555) 002-0002',
-        role: 'admin'
-      };
-    }
-    // Check guest credentials
-    else if (email === GUEST_TEST_CREDENTIALS.email && password === GUEST_TEST_CREDENTIALS.password) {
-      testUser = {
-        id: '3',
-        email: email,
-        name: 'Guest User',
-        phone: '+1 (555) 003-0003',
-        role: 'user'
-      };
-    }
-    
-    if (testUser) {
-      setUser(testUser);
+  const login = async (email, password) => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+      credentials: 'include'
+    })
+
+    if (res.status == 200) {
+      const user = await res.json()
+      setUser(user);
       setIsAuthenticated(true);
-      localStorage.setItem('testUser', JSON.stringify(testUser));
+      localStorage.setItem('user', JSON.stringify(user));
       setAuthError(null);
-      return testUser;
+      return user;
     } else {
       setAuthError({
         type: 'invalid_credentials',
@@ -103,12 +67,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = (shouldRedirect = true) => {
+  const logout = async (shouldRedirect = true) => {
+    const user = localStorage.getItem('user')
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: user
+    })
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('testUser');
+    localStorage.removeItem('user');
     setAuthError(null);
-    
+
     if (shouldRedirect) {
       window.location.href = '/';
     }
@@ -119,9 +91,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated, 
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated,
       isLoadingAuth,
       isLoadingPublicSettings,
       authError,
