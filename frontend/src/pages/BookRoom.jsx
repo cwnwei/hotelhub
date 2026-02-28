@@ -31,7 +31,7 @@ export default function BookRoom() {
   const [checkOut, setCheckOut] = useState(urlParams.get("checkOut") || "");
   const [guests, setGuests] = useState(parseInt(urlParams.get("guests")) || 2);
   const [roomType, setRoomType] = useState("all");
-  const [selectedRoom, setSelectedRoom] = useState(null);
+  // const [selectedRoom, setSelectedRoom] = useState(null);
 
   const { data: rooms = [], isLoading } = useQuery({
     queryKey: ["availableRooms"],
@@ -51,9 +51,9 @@ export default function BookRoom() {
     ? differenceInDays(new Date(checkOut), new Date(checkIn)) 
     : 0;
 
-  const handleBookNow = (room) => {
+  // const handleBookNow = (room) => {
 
-  };
+  // };
 
   return (
     <div className="min-h-screen bg-slate-50">
