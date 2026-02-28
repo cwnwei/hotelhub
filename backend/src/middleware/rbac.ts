@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken"
 import { UserPayload } from '../utils/generateToken';
 
 
-export const authorizeRoles = (...allowedRoles: [string]) => {
+export const authorizeRoles = (...allowedRoles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
         const authHeader = req.headers.authorization;
         if (!authHeader) return res.status(401).json({ message: 'Missing Authorization Header' });
