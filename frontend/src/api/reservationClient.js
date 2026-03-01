@@ -1,8 +1,9 @@
 const API_URL = import.meta.env.VITE_API_URL;
+import { fetchWithAuth } from "@/api/auth"
 
 export const reservationClient = {
   async list() {
-    const response = await fetch(`${API_URL}/reservations`, {
+    const response = await fetchWithAuth(`${API_URL}/reservations`, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -18,7 +19,7 @@ export const reservationClient = {
   },
 
   async create(data) {
-    const response = await fetch(`${API_URL}/reservations`, {
+    const response = await fetchWithAuth(`${API_URL}/reservations`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -36,7 +37,7 @@ export const reservationClient = {
   },
 
   async update(id, data) {
-    const response = await fetch(`${API_URL}/reservations/${id}`, {
+    const response = await fetchWithAuth(`${API_URL}/reservations/${id}`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -54,7 +55,7 @@ export const reservationClient = {
   },
 
   async delete(id) {
-    const response = await fetch(`${API_URL}/reservations/${id}`, {
+    const response = await fetchWithAuth(`${API_URL}/reservations/${id}`, {
       method: "DELETE",
       credentials: "include",
       headers: {

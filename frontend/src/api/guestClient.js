@@ -1,8 +1,9 @@
 const API_URL = import.meta.env.VITE_API_URL;
+import { fetchWithAuth } from "@/api/auth"
 
 export const guestClient = {
   async list() {
-    const response = await fetch(`${API_URL}/guests`, {
+    const response = await fetchWithAuth(`${API_URL}/guests`, {
       method: "GET",
       credentials: "include",
       headers: {
@@ -18,7 +19,7 @@ export const guestClient = {
   },
 
   async create(data) {
-    const response = await fetch(`${API_URL}/guests`, {
+    const response = await fetchWithAuth(`${API_URL}/guests`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -36,7 +37,7 @@ export const guestClient = {
   },
 
   async update(id, data) {
-    const response = await fetch(`${API_URL}/guests/${id}`, {
+    const response = await fetchWithAuth(`${API_URL}/guests/${id}`, {
       method: "PUT",
       credentials: "include",
       headers: {
@@ -54,7 +55,7 @@ export const guestClient = {
   },
 
   async delete(id) {
-    const response = await fetch(`${API_URL}/guests/${id}`, {
+    const response = await fetchWithAuth(`${API_URL}/guests/${id}`, {
       method: "DELETE",
       credentials: "include",
       headers: {
