@@ -9,46 +9,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Pencil, Hotel, MapPin, Phone, Mail, Star, Loader2 } from "lucide-react";
 
-// TODO: remove when hotel backend integrated
-const mockHotels = [
-  {
-    id: 1,
-    name: "Hotel Sunshine",
-    city: "Miami",
-    country: "USA",
-    address: "123 Ocean Drive",
-    phone: "+1 305 555 1234",
-    email: "info@sunshine.com",
-    star_rating: 5,
-    image_url: "https://source.unsplash.com/400x300/?hotel,beach",
-    description: "A sunny paradise by the sea."
-  },
-  {
-    id: 2,
-    name: "Mountain Retreat",
-    city: "Aspen",
-    country: "USA",
-    address: "45 Alpine Way",
-    phone: "+1 970 555 5678",
-    email: "contact@mountainretreat.com",
-    star_rating: 4,
-    image_url: "https://source.unsplash.com/400x300/?hotel,mountain",
-    description: "Escape to the mountains for peace and comfort."
-  },
-  {
-    id: 3,
-    name: "City Lights Inn",
-    city: "New York",
-    country: "USA",
-    address: "789 Broadway",
-    phone: "+1 212 555 9012",
-    email: "hello@citylights.com",
-    star_rating: 3,
-    image_url: "https://source.unsplash.com/400x300/?hotel,city",
-    description: "Experience the vibrant city life."
-  }
-];
-
 function HotelForm({ hotel, open, onClose, onSave, isLoading }) {
   const [formData, setFormData] = useState({
     name: hotel?.name || "",
@@ -138,9 +98,7 @@ export default function Hotels() {
     retry: false,
   });
 
-  // TODO: remove when hotel backend integrated
-  // Use mock data if backend fails or empty
-  const hotels = hotelsData?.length > 0 ? hotelsData : mockHotels;
+  const hotels = hotelsData?.length > 0 ? hotelsData : [];
 
   const saveMutation = useMutation({
     mutationFn: (data) => editingHotel

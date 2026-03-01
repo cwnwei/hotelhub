@@ -4,12 +4,6 @@ import { hotelClient } from "@/api/hotelClient";
 
 const HotelContext = createContext(null);
 
-const mockHotels = [
-    { id: 1, name: "Hotel Sunshine", location: "Beachside" },
-    { id: 2, name: "Ocean View Inn", location: "Seaside" },
-    { id: 3, name: "Mountain Retreat", location: "Hills" },
-];
-
 export function HotelProvider({ children }) {
     const [selectedHotelId, setSelectedHotelId] = useState(null);
 
@@ -23,9 +17,7 @@ export function HotelProvider({ children }) {
         staleTime: 1000 * 60,
     });
 
-    //TODO: remove when backend integrated
-    // Use mock data if backend fails or data is empty
-    const hotels = hotelsData?.length > 0 ? hotelsData : mockHotels;
+    const hotels = hotelsData?.length > 0 ? hotelsData : [];
 
     useEffect(() => {
         if (hotels.length > 0 && !selectedHotelId) {
