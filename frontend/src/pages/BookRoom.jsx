@@ -171,6 +171,9 @@ export default function BookRoom() {
                           {roomTypeLabels[room.room_type] || room.room_type}
                         </h3>
                         <p className="text-sm text-slate-500">Room {room.room_number} • Floor {room.floor}</p>
+                        {room.hotel_name && (
+                          <p className="text-xs text-amber-600 font-medium mt-0.5">{room.hotel_name}</p>
+                        )}
                       </div>
                       <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-0">Available</Badge>
                     </div>

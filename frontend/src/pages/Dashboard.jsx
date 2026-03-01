@@ -6,11 +6,15 @@ import { BedDouble, Users, CalendarCheck, DollarSign } from "lucide-react";
 import StatsCard from "@/components/dashboard/StatsCard";
 import RecentActivity from "@/components/dashboard/RecentActivity";
 import OccupancyChart from "@/components/dashboard/OccupancyChart";
+import { useHotel } from "@/lib/HotelContext";
 
 export default function Dashboard() {
+  const { selectedHotel, selectedHotelId, hotels } = useHotel();
+  
   const { data: rooms = [] } = useQuery({
-    queryKey: ["rooms"],
-    queryFn: () => roomClient.list()
+    queryKey: ["rooms", selectedHotelId],
+    queryFn: () => selectedHotelId ? roomClient.list().filter({ hotel_id: selectedHotelId }) : [],
+    enabled: !!selectedHotelId
   });
 
   const { data: guests = [] } = useQuery({
@@ -19,8 +23,9 @@ export default function Dashboard() {
   });
 
   const { data: reservations = [] } = useQuery({
-    queryKey: ["reservations"],
-    queryFn: () => reservationClient.list()
+    queryKey: ["reservations", selectedHotelId],
+    queryFn: () => selectedHotelId ? reservationClient.list().filter({ hotel_id: selectedHotelId }, "-created_date") : [],
+    enabled: !!selectedHotelId
   });
 
   // Sort reservations by newest first (if backend doesn't sort)
@@ -53,6 +58,7 @@ export default function Dashboard() {
           <p className="text-slate-500 mt-1">
             Overview of your hotel operations
           </p>
+          <p className="text-slate-500 mt-1">{selectedHotel ? `${selectedHotel.name} — Operations overview` : hotels.length === 0 ? "Add your first hotel to get started" : "Select a hotel from the sidebar"}</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
