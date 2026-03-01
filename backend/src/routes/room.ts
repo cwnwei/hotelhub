@@ -6,15 +6,17 @@ const roomrouter = express.Router();
 
 roomrouter.get("/", authorizeRoles('admin', 'user'), async (req, res) => {
     try {
-      const rooms = await Room.find().sort({ createdAt: -1 });
+        const rooms = await Room.find().sort({ createdAt: -1 });
+        const formattedRooms = rooms.map(room => ({
+            ...room.toObject(),
+            id: room._id,
+        }));
 
-      res.status(200).json({
-        rooms,
-      });
+        res.status(200).json(formattedRooms);
 
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Server error" });
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
     }
 })
 
@@ -36,11 +38,8 @@ roomrouter.post("/", authorizeRoles('admin'), async (req, res) => {
     })
 
     res.status(200).json({
-        message: "Room updated successfully",
-        room: {
-            "id": new_room.id,
-            ...new_room.toJSON()
-        },
+        "id": new_room.id,
+        ...new_room.toJSON()
     })
 })
 
@@ -63,9 +62,9 @@ roomrouter.put("/:id", authorizeRoles('admin'), async (req, res) => {
         }
 
         res.status(200).json({
-            message: "Room updated successfully",
-            room: updatedRoom,
-        });
+            "id": updatedRoom.id,
+            ...updatedRoom.toJSON()
+        })
 
     } catch (err: any) {
         console.error(err);
@@ -89,8 +88,8 @@ roomrouter.delete("/:id", authorizeRoles('admin'), async (req, res) => {
         }
 
         res.status(200).json({
-            message: "Room deleted successfully",
-            room: deletedRoom,
+            "id": deletedRoom.id,
+            ...deletedRoom.toJSON()
         });
 
     } catch (err: any) {
