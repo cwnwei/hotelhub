@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { hotelClient } from "@/api/hotelClient";
 import { Button } from "@/components/ui/button";
@@ -11,16 +11,32 @@ import { Plus, Pencil, Hotel, MapPin, Phone, Mail, Star, Loader2 } from "lucide-
 
 function HotelForm({ hotel, open, onClose, onSave, isLoading }) {
   const [formData, setFormData] = useState({
-    name: hotel?.name || "",
-    address: hotel?.address || "",
-    city: hotel?.city || "",
-    country: hotel?.country || "",
-    phone: hotel?.phone || "",
-    email: hotel?.email || "",
-    star_rating: hotel?.star_rating || 4,
-    image_url: hotel?.image_url || "",
-    description: hotel?.description || ""
+    name: "",
+    address: "",
+    city: "",
+    country: "",
+    phone: "",
+    email: "",
+    star_rating: 4,
+    image_url: "",
+    description: ""
   });
+
+  useEffect(() => {
+    if (hotel) {
+      setFormData({
+        name: hotel.name || "",
+        address: hotel.address || "",
+        city: hotel.city || "",
+        country: hotel.country || "",
+        phone: hotel.phone || "",
+        email: hotel.email || "",
+        star_rating: hotel.star_rating || 4,
+        image_url: hotel.image_url || "",
+        description: hotel.description || ""
+      });
+    }
+  }, [hotel]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -102,8 +118,8 @@ export default function Hotels() {
 
   const saveMutation = useMutation({
     mutationFn: (data) => editingHotel
-  ? hotelClient.update(editingHotel.id, data)
-  : hotelClient.create(data),
+      ? hotelClient.update(editingHotel.id, data)
+      : hotelClient.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["hotels"] });
       setFormOpen(false);
