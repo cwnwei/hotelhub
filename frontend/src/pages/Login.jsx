@@ -31,7 +31,7 @@ export default function Login() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <header className="bg-white border-b border-slate-200">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <Link to={createPageUrl("")} className="flex items-center gap-2 text-slate-600 hover:text-slate-900">
             <ChevronLeft className="w-5 h-5" />
             <span className="font-light text-xl text-slate-900">HotelHub</span>
