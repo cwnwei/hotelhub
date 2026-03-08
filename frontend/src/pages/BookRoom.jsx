@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,15 +27,15 @@ const roomTypeLabels = {
 
 export default function BookRoom() {
   const navigate = useNavigate();
-  const urlParams = new URLSearchParams(window.location.search);
+  const location = useLocation();
+  const urlParams = new URLSearchParams(location.search);
 
   const [checkIn, setCheckIn] = useState(urlParams.get("checkIn") || "");
   const [checkOut, setCheckOut] = useState(urlParams.get("checkOut") || "");
   const [guests, setGuests] = useState(parseInt(urlParams.get("guests")) || 2);
-  const [roomType, setRoomType] = useState("all");
+  const [roomType, setRoomType] = useState(urlParams.get("roomType") || "all");
   // const [selectedRoom, setSelectedRoom] = useState(null);
 
-  //TODO: for testing I used normal room list, replace when done
   const { data: rooms = [], isLoading } = useQuery({
     queryKey: ["availableRooms"],
     queryFn: () => roomClient.list(),
