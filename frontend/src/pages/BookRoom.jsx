@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Users, Wifi, Tv, Wind, Coffee, ChevronLeft } from "lucide-react";
 import { differenceInDays } from "date-fns";
+import { roomClient } from "@/api/roomClient";
 
 const amenityIcons = {
   wifi: Wifi,
@@ -25,20 +26,19 @@ const roomTypeLabels = {
 };
 
 export default function BookRoom() {
+  const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
-  
+
   const [checkIn, setCheckIn] = useState(urlParams.get("checkIn") || "");
   const [checkOut, setCheckOut] = useState(urlParams.get("checkOut") || "");
   const [guests, setGuests] = useState(parseInt(urlParams.get("guests")) || 2);
   const [roomType, setRoomType] = useState("all");
   // const [selectedRoom, setSelectedRoom] = useState(null);
 
+  //TODO: for testing I used normal room list, replace when done
   const { data: rooms = [], isLoading } = useQuery({
     queryKey: ["availableRooms"],
-    queryFn: async () => {
-      // base44 removed — return empty room list for now
-      return [];
-    }
+    queryFn: () => roomClient.list(),
   });
 
   const filteredRooms = rooms.filter(room => {
@@ -51,9 +51,18 @@ export default function BookRoom() {
     ? differenceInDays(new Date(checkOut), new Date(checkIn)) 
     : 0;
 
-  // const handleBookNow = (room) => {
-
-  // };
+  const handleBookNow = (room) => {
+    const params = new URLSearchParams({
+      roomId: room.id,
+      checkIn,
+      checkOut,
+      guests
+    });
+    navigate({
+      pathname: createPageUrl("ConfirmBooking"),
+      search: params.toString()
+    });
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
