@@ -23,7 +23,10 @@ export default function Home() {
     if (checkIn) params.set("checkIn", checkIn);
     if (checkOut) params.set("checkOut", checkOut);
     params.set("guests", guests.toString());
-    window.location.href = createPageUrl("BookRoom") + "?" + params.toString();
+    navigate({
+      pathname: createPageUrl("BookRoom"),
+      search: params.toString(),
+    });
   };
 
   return (
@@ -36,7 +39,7 @@ export default function Home() {
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60 pointer-events-none" />
-        
+
         {/* Nav */}
         <nav className="relative z-50 flex items-center justify-between px-6 md:px-12 py-6">
           <h1 className="text-2xl font-light text-white tracking-wide">HotelHub</h1>
@@ -48,7 +51,7 @@ export default function Home() {
               My Reservations
             </Link>
             {isAuthenticated ? (
-              <Button 
+              <Button
                 onClick={handleLogout}
                 variant="outline"
                 className="text-slate-900 border-white/50 hover:bg-white/10 hover:text-white"
@@ -56,7 +59,7 @@ export default function Home() {
                 Logout
               </Button>
             ) : (
-              <Button 
+              <Button
                 onClick={() => navigate("/login")}
                 className="bg-white text-slate-900 hover:bg-slate-100"
               >
@@ -116,7 +119,7 @@ export default function Home() {
                 />
               </div>
               <div className="flex items-end">
-                <Button 
+                <Button
                   onClick={handleSearch}
                   className="w-full bg-slate-900 hover:bg-slate-800 h-10"
                 >
@@ -163,16 +166,20 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { type: "Deluxe Room", price: 180, img: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=500" },
-              { type: "Suite", price: 320, img: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500" },
-              { type: "Penthouse", price: 650, img: "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=500" }
+              { name: "Deluxe", type: "deluxe", price: 180, img: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=500" },
+              { name: "Suite", type: "suite", price: 320, img: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500" },
+              { name: "Penthouse", type: "penthouse", price: 650, img: "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=500" }
             ].map((room) => (
-              <div key={room.type} className="group cursor-pointer" onClick={() => window.location.href = createPageUrl("BookRoom")}>
+              <div key={room.type} className="group cursor-pointer"
+                onClick={() => navigate({
+                  pathname: createPageUrl("BookRoom"),
+                  search: new URLSearchParams({ "roomType": room.type }).toString(),
+                })}>
                 <div className="relative h-64 rounded-2xl overflow-hidden mb-4">
-                  <img src={room.img} alt={room.type} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={room.img} alt={room.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
-                    <h4 className="text-white font-medium text-lg">{room.type}</h4>
+                    <h4 className="text-white font-medium text-lg">{room.name}</h4>
                     <p className="text-white/80 text-sm">From ${room.price}/night</p>
                   </div>
                 </div>

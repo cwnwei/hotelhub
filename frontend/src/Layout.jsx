@@ -8,23 +8,51 @@ import {
   CalendarDays,
   Menu,
   X,
-  Hotel
+  Hotel,
+  LogOut
 } from "lucide-react";
-import { LogOut } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+import { HotelProvider, useHotel } from "@/lib/HotelContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const navigation = [
-  { name: "Dashboard", page: "Dashboard", icon: LayoutDashboard },
-  { name: "Rooms", page: "Rooms", icon: BedDouble },
-  { name: "Guests", page: "Guests", icon: Users },
-  { name: "Reservations", page: "Reservations", icon: CalendarDays }
-];
+function HotelSelector() {
+  const { hotels, selectedHotelId, setSelectedHotelId } = useHotel();
 
-export default function Layout({ children, currentPageName }) {
+  if (!hotels.length) return null;
+
+  return (
+    <div className="px-4 pb-4">
+      <p className="text-xs text-slate-400 uppercase tracking-wider font-medium mb-2">Active Hotel</p>
+      <Select value={selectedHotelId || ""} onValueChange={setSelectedHotelId}>
+        <SelectTrigger className="w-full bg-slate-50 border-slate-200 text-sm">
+          <SelectValue placeholder="Select hotel" />
+        </SelectTrigger>
+        <SelectContent>
+          {hotels.map((hotel) => (
+            <SelectItem key={hotel.id} value={hotel.id}>
+              {hotel.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function LayoutInner({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { logout } = useAuth();
+  const { selectedHotel } = useHotel();
+
+  const navigation = [
+    { name: "Dashboard", page: "Dashboard", icon: LayoutDashboard },
+    { name: "Hotels", page: "Hotels", icon: Hotel },
+    { name: "Rooms", page: "Rooms", icon: BedDouble },
+    { name: "Guests", page: "Guests", icon: Users },
+    { name: "Reservations", page: "Reservations", icon: CalendarDays }
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -35,7 +63,10 @@ export default function Layout({ children, currentPageName }) {
             <div className="p-2 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500">
               <Hotel className="w-5 h-5 text-white" />
             </div>
-            <span className="font-semibold text-slate-800">HotelHub</span>
+            <div>
+              <span className="font-semibold text-slate-800">HotelHub</span>
+              {selectedHotel && <p className="text-xs text-slate-400">{selectedHotel.name}</p>}
+            </div>
           </div>
           <Button 
             variant="ghost" 
@@ -61,13 +92,13 @@ export default function Layout({ children, currentPageName }) {
               </div>
               <div>
                 <h1 className="font-semibold text-slate-800 text-lg">HotelHub</h1>
-                <p className="text-xs text-slate-400">Management System</p>
+                <p className="text-xs text-slate-400">Chain Management</p>
               </div>
             </div>
           </div>
 
-          <nav className="flex-1 px-4 py-6 lg:py-0 mt-16 lg:mt-0">
-            <div className="space-y-1">
+          <nav className="flex-1 px-4 py-6 lg:py-0 mt-16 lg:mt-0 overflow-y-auto">
+            <div className="space-y-1 mb-6">
               {navigation.map((item) => {
                 const isActive = currentPageName === item.page;
                 return (
@@ -88,8 +119,12 @@ export default function Layout({ children, currentPageName }) {
                 );
               })}
             </div>
+
+            {/* Hotel selector */}
+            <HotelSelector />
           </nav>
 
+          {/* Logout button */}
           <div className="px-4 py-3">
             <button
               onClick={() => { logout(); setSidebarOpen(false); }}
@@ -103,6 +138,7 @@ export default function Layout({ children, currentPageName }) {
             </button>
           </div>
 
+          {/* Help section */}
           <div className="p-4 border-t border-slate-100">
             <div className="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50">
               <p className="text-sm font-medium text-amber-900">Need help?</p>
@@ -125,5 +161,15 @@ export default function Layout({ children, currentPageName }) {
         {children}
       </main>
     </div>
+  );
+}
+
+export default function Layout({ children, currentPageName }) {
+  return (
+    <HotelProvider>
+      <LayoutInner currentPageName={currentPageName}>
+        {children}
+      </LayoutInner>
+    </HotelProvider>
   );
 }

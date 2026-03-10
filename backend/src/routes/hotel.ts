@@ -7,10 +7,12 @@ const hotelrouter = express.Router();
 hotelrouter.get("/", authorizeRoles('admin', 'user'), async (req, res) => {
     try {
         const hotels = await Hotel.find().sort({ createdAt: -1 });
+        const formattedHotels = hotels.map(hotel => ({
+            ...hotel.toObject(),
+            id: hotel._id,
+        }));
 
-        res.status(200).json({
-            hotels,
-        });
+        res.status(200).json(formattedHotels);
 
     } catch (err) {
         console.error(err);
@@ -28,7 +30,8 @@ hotelrouter.get("/:id", authorizeRoles('admin', 'user'), async (req, res) => {
         }
 
         res.status(200).json({
-            hotel,
+            ...hotel.toJSON(),
+            id: hotel.id
         });
 
     } catch (err: any) {
@@ -64,11 +67,8 @@ hotelrouter.post("/", authorizeRoles('admin'), async (req, res) => {
         })
 
         res.status(201).json({
-            message: "Hotel created successfully",
-            hotel: {
-                "id": new_hotel.id,
-                ...new_hotel.toJSON()
-            },
+            "id": new_hotel.id,
+            ...new_hotel.toJSON()
         })
     } catch (err: any) {
         console.error(err);
@@ -100,9 +100,9 @@ hotelrouter.put("/:id", authorizeRoles('admin'), async (req, res) => {
         }
 
         res.status(200).json({
-            message: "Hotel updated successfully",
-            hotel: updatedHotel,
-        });
+            "id": updatedHotel.id,
+            ...updatedHotel.toJSON()
+        })
 
     } catch (err: any) {
         console.error(err);
@@ -126,8 +126,8 @@ hotelrouter.delete("/:id", authorizeRoles('admin'), async (req, res) => {
         }
 
         res.status(200).json({
-            message: "Hotel deleted successfully",
-            hotel: deletedHotel,
+            "id": deletedHotel.id,
+            ...deletedHotel.toJSON()
         });
 
     } catch (err: any) {
