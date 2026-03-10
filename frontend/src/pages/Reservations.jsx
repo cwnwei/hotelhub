@@ -7,16 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import ReservationTable from "@/components/reservations/ReservationTable";
 import ReservationForm from "@/components/reservations/ReservationForm";
+import { useHotel } from "@/lib/HotelContext";
 
 export default function Reservations() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingReservation, setEditingReservation] = useState(null);
 
   const queryClient = useQueryClient();
+  const { selectedHotel, selectedHotelId } = useHotel();
 
   const { data: reservations = [], isLoading } = useQuery({
-    queryKey: ["reservations"],
-    queryFn: () => reservationClient.list()
+    queryKey: ["reservations", selectedHotelId],
+    queryFn: () => selectedHotelId
+      ? reservationClient.list().filter({ hotel_id: selectedHotelId }, "-created_date")
+      : [],
+    enabled: !!selectedHotelId
   });
 
   const { data: guests = [] } = useQuery({
@@ -25,8 +30,11 @@ export default function Reservations() {
   });
 
   const { data: rooms = [] } = useQuery({
-    queryKey: ["rooms"],
-    queryFn: () => roomClient.list()
+    queryKey: ["rooms", selectedHotelId],
+    queryFn: () => selectedHotelId
+      ? roomClient.list().filter({ hotel_id: selectedHotelId })
+      : [],
+    enabled: !!selectedHotelId
   });
 
   const saveMutation = useMutation({
@@ -35,8 +43,8 @@ export default function Reservations() {
         return reservationClient.update(editingReservation.id, data);
       }
 
-      const result = await reservationClient.create(data);
-
+      const result = await base44.entities.Reservation.create({ ...data, hotel_id: selectedHotelId, hotel_name: selectedHotel?.name });
+      
       // Update room status after check-in
       if (data.room_id && data.status === "checked_in") {
         await roomClient.update(data.room_id, { status: "occupied" });
@@ -45,9 +53,9 @@ export default function Reservations() {
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["reservations"] });
-      queryClient.invalidateQueries({ queryKey: ["rooms"] });
-
+      queryClient.invalidateQueries(["reservations", selectedHotelId]);
+      queryClient.invalidateQueries(["rooms", selectedHotelId]);
+      
       setFormOpen(false);
       setEditingReservation(null);
     }
@@ -74,6 +82,7 @@ export default function Reservations() {
             <p className="text-slate-500 mt-1">
               Manage bookings and check-ins
             </p>
+            <p className="text-slate-500 mt-1">{selectedHotel ? `${selectedHotel.name} — Manage bookings` : "Select a hotel to manage reservations"}</p>
           </div>
 
           <Button

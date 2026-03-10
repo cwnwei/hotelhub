@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react";
 import RoomCard from "@/components/rooms/RoomCard";
 import RoomForm from "@/components/rooms/RoomForm";
+import { useHotel } from "@/lib/HotelContext";
 
 export default function Rooms() {
   const [formOpen, setFormOpen] = useState(false);
@@ -14,10 +15,12 @@ export default function Rooms() {
   const [statusFilter, setStatusFilter] = useState("all");
 
   const queryClient = useQueryClient();
+  const { selectedHotel, selectedHotelId } = useHotel();
 
   const { data: rooms = [], isLoading } = useQuery({
     queryKey: ["rooms"],
-    queryFn: () => roomClient.list()
+    queryFn: () => selectedHotelId ? roomClient.list().filter({ hotel_id: selectedHotelId }) : [],
+    enabled: !!selectedHotelId
   });
 
   const saveMutation = useMutation({
@@ -26,7 +29,7 @@ export default function Rooms() {
         ? roomClient.update(editingRoom.id, data)
         : roomClient.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["rooms", selectedHotelId] });
       setFormOpen(false);
       setEditingRoom(null);
     }
@@ -60,6 +63,7 @@ export default function Rooms() {
             <p className="text-slate-500 mt-1">
               Manage your hotel rooms
             </p>
+            <p className="text-slate-500 mt-1">{selectedHotel ? `${selectedHotel.name} — Manage rooms` : "Select a hotel to manage rooms"}</p>
           </div>
 
           <Button
@@ -121,7 +125,7 @@ export default function Rooms() {
           room={editingRoom}
           open={formOpen}
           onClose={handleClose}
-          onSave={(data) => saveMutation.mutate(data)}
+          onSave={(data) => saveMutation.mutate({ ...data, hotel_id: selectedHotelId, hotel_name: selectedHotel?.name })}
           isLoading={saveMutation.isPending}
         />
       </div>

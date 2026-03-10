@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Users, Wifi, Tv, Wind, Coffee, ChevronLeft } from "lucide-react";
 import { differenceInDays } from "date-fns";
+import { roomClient } from "@/api/roomClient";
 
 const amenityIcons = {
   wifi: Wifi,
@@ -25,20 +26,19 @@ const roomTypeLabels = {
 };
 
 export default function BookRoom() {
-  const urlParams = new URLSearchParams(window.location.search);
-  
+  const navigate = useNavigate();
+  const location = useLocation();
+  const urlParams = new URLSearchParams(location.search);
+
   const [checkIn, setCheckIn] = useState(urlParams.get("checkIn") || "");
   const [checkOut, setCheckOut] = useState(urlParams.get("checkOut") || "");
   const [guests, setGuests] = useState(parseInt(urlParams.get("guests")) || 2);
-  const [roomType, setRoomType] = useState("all");
+  const [roomType, setRoomType] = useState(urlParams.get("roomType") || "all");
   // const [selectedRoom, setSelectedRoom] = useState(null);
 
   const { data: rooms = [], isLoading } = useQuery({
     queryKey: ["availableRooms"],
-    queryFn: async () => {
-      // base44 removed — return empty room list for now
-      return [];
-    }
+    queryFn: () => roomClient.list(),
   });
 
   const filteredRooms = rooms.filter(room => {
@@ -51,9 +51,18 @@ export default function BookRoom() {
     ? differenceInDays(new Date(checkOut), new Date(checkIn)) 
     : 0;
 
-  // const handleBookNow = (room) => {
-
-  // };
+  const handleBookNow = (room) => {
+    const params = new URLSearchParams({
+      roomId: room.id,
+      checkIn,
+      checkOut,
+      guests
+    });
+    navigate({
+      pathname: createPageUrl("ConfirmBooking"),
+      search: params.toString()
+    });
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -171,6 +180,9 @@ export default function BookRoom() {
                           {roomTypeLabels[room.room_type] || room.room_type}
                         </h3>
                         <p className="text-sm text-slate-500">Room {room.room_number} • Floor {room.floor}</p>
+                        {room.hotel_name && (
+                          <p className="text-xs text-amber-600 font-medium mt-0.5">{room.hotel_name}</p>
+                        )}
                       </div>
                       <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-0">Available</Badge>
                     </div>
