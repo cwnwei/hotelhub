@@ -118,7 +118,7 @@ export default function MyReservations() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <header className="bg-white border-b border-slate-200">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to={createPageUrl("")} className="flex items-center gap-2 text-slate-600 hover:text-slate-900">
             <ChevronLeft className="w-5 h-5" />
             <span className="font-light text-xl text-slate-900">HotelHub</span>
@@ -131,7 +131,7 @@ export default function MyReservations() {
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-light text-slate-900 mb-2">My Reservations</h1>
         <p className="text-slate-500 mb-8">Enter your email to view your bookings</p>
 
