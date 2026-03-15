@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Pencil, Search, Star, Mail, Phone } from "lucide-react";
-import { format } from "date-fns";
+import { Pencil, Search, Mail, Phone } from "lucide-react";
 
 export default function GuestTable({ guests, onEdit }) {
   const [search, setSearch] = useState("");
