@@ -9,10 +9,17 @@ const reservationrouter = express.Router();
 reservationrouter.get("/", authorizeRoles('admin', 'user'), async (req, res) => {
     try {
         const reservations = await Reservation.find().sort({ createdAt: -1 });
-        const formattedreservations = reservations.map(reservation => ({
-            ...reservation.toObject(),
-            id: reservation._id,
-        }));
+        const formattedreservations = await Promise.all(
+            reservations.map(async (reservation) => {
+                const room = await Room.findById(reservation.room_id);
+
+                return {
+                    ...reservation.toObject(),
+                    id: reservation._id,
+                    hotel_id: room?.hotel_id
+                };
+            })
+        );
 
         res.status(200).json(formattedreservations);
 
@@ -23,7 +30,7 @@ reservationrouter.get("/", authorizeRoles('admin', 'user'), async (req, res) => 
 })
 
 reservationrouter.post("/", authorizeRoles('admin'), async (req, res) => {
-    const {guest_id, room_id } = req.body
+    const { guest_id, room_id } = req.body
 
     const room = await Room.findById(room_id)
     if (!room) return res.status(400).json("Room does not exist")
@@ -42,7 +49,7 @@ reservationrouter.post("/", authorizeRoles('admin'), async (req, res) => {
 reservationrouter.put("/:id", authorizeRoles('admin'), async (req, res) => {
     try {
         const { id } = req.params;
-        const {guest_id, room_id } = req.body
+        const { guest_id, room_id } = req.body
 
         const room = await Room.findById(room_id)
         if (!room) return res.status(400).json("Room does not exist")

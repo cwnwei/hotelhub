@@ -18,9 +18,14 @@ export default function Reservations() {
 
   const { data: reservations = [], isLoading } = useQuery({
     queryKey: ["reservations", selectedHotelId],
-    queryFn: () => selectedHotelId
-      ? reservationClient.list().filter({ hotel_id: selectedHotelId }, "-created_date")
-      : [],
+    queryFn: async () => {
+      if (!selectedHotelId) return [];
+
+      const data = await reservationClient.list();
+      console.log(data)
+      return data
+        .filter(reservation => reservation.hotel_id === selectedHotelId)
+    },
     enabled: !!selectedHotelId
   });
 
@@ -44,7 +49,7 @@ export default function Reservations() {
       }
 
       const result = await base44.entities.Reservation.create({ ...data, hotel_id: selectedHotelId, hotel_name: selectedHotel?.name });
-      
+
       // Update room status after check-in
       if (data.room_id && data.status === "checked_in") {
         await roomClient.update(data.room_id, { status: "occupied" });
@@ -55,7 +60,7 @@ export default function Reservations() {
     onSuccess: () => {
       queryClient.invalidateQueries(["reservations", selectedHotelId]);
       queryClient.invalidateQueries(["rooms", selectedHotelId]);
-      
+
       setFormOpen(false);
       setEditingReservation(null);
     }
