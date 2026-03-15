@@ -18,8 +18,12 @@ export default function Rooms() {
   const { selectedHotel, selectedHotelId } = useHotel();
 
   const { data: rooms = [], isLoading } = useQuery({
-    queryKey: ["rooms"],
-    queryFn: () => selectedHotelId ? roomClient.list().filter({ hotel_id: selectedHotelId }) : [],
+    queryKey: ["rooms", selectedHotelId],
+    queryFn: async () => {
+      if (!selectedHotelId) return [];
+      const data = await roomClient.list();
+      return data.filter(room => room.hotel_id === selectedHotelId);
+    },
     enabled: !!selectedHotelId
   });
 
