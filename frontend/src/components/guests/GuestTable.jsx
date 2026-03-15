@@ -33,7 +33,6 @@ export default function GuestTable({ guests, onEdit }) {
               <TableHead className="font-medium text-slate-600">Guest</TableHead>
               <TableHead className="font-medium text-slate-600">Contact</TableHead>
               <TableHead className="font-medium text-slate-600">ID</TableHead>
-              <TableHead className="font-medium text-slate-600">Registered</TableHead>
               <TableHead className="font-medium text-slate-600 w-20"></TableHead>
             </TableRow>
           </TableHeader>
@@ -57,13 +56,7 @@ export default function GuestTable({ guests, onEdit }) {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-slate-800">{guest.full_name}</span>
-                          {guest.vip && (
-                            <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                          )}
                         </div>
-                        {guest.nationality && (
-                          <span className="text-xs text-slate-400">{guest.nationality}</span>
-                        )}
                       </div>
                     </div>
                   </TableCell>
@@ -80,17 +73,11 @@ export default function GuestTable({ guests, onEdit }) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {guest.id_type && guest.id_number && (
+                    {guest.id && (
                       <div>
-                        <Badge variant="outline" className="capitalize text-xs border-slate-200">
-                          {guest.id_type?.replace("_", " ")}
-                        </Badge>
-                        <p className="text-xs text-slate-400 mt-1">{guest.id_number}</p>
+                        <p className="text-xs text-slate-400 mt-1">{guest.id}</p>
                       </div>
                     )}
-                  </TableCell>
-                  <TableCell className="text-sm text-slate-500">
-                    {format(new Date(guest.created_date), "MMM d, yyyy")}
                   </TableCell>
                   <TableCell>
                     <Button 

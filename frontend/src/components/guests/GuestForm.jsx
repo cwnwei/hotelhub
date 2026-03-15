@@ -93,66 +93,6 @@ export default function GuestForm({ guest, open, onClose, onSave, isLoading }) {
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>ID Type</Label>
-              <Select value={formData.id_type} onValueChange={(v) => setFormData({ ...formData, id_type: v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="passport">Passport</SelectItem>
-                  <SelectItem value="drivers_license">Driver's License</SelectItem>
-                  <SelectItem value="national_id">National ID</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>ID Number</Label>
-              <Input
-                value={formData.id_number}
-                onChange={(e) => setFormData({ ...formData, id_number: e.target.value })}
-                placeholder="AB123456"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Nationality</Label>
-              <Input
-                value={formData.nationality}
-                onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
-                placeholder="United States"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Address</Label>
-              <Input
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="123 Main St"
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label>Notes</Label>
-            <Textarea
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Special preferences or notes..."
-              rows={3}
-            />
-          </div>
-          <div className="flex items-center justify-between p-4 rounded-xl bg-amber-50">
-            <div>
-              <Label className="text-amber-900">VIP Guest</Label>
-              <p className="text-xs text-amber-700">Mark as VIP for priority service</p>
-            </div>
-            <Switch
-              checked={formData.vip}
-              onCheckedChange={(checked) => setFormData({ ...formData, vip: checked })}
-            />
-          </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
             <Button type="submit" disabled={isLoading} className="bg-slate-900 hover:bg-slate-800">
