@@ -29,8 +29,8 @@ reservationrouter.get("/", authorizeRoles('admin', 'user'), async (req, res) => 
     }
 })
 
-reservationrouter.post("/", authorizeRoles('admin'), async (req, res) => {
-    const { guest_id, room_id } = req.body
+reservationrouter.post("/", authorizeRoles('admin', 'user'), async (req, res) => {
+    const {guest_id, room_id } = req.body
 
     const room = await Room.findById(room_id)
     if (!room) return res.status(400).json("Room does not exist")
@@ -46,7 +46,7 @@ reservationrouter.post("/", authorizeRoles('admin'), async (req, res) => {
     })
 })
 
-reservationrouter.put("/:id", authorizeRoles('admin'), async (req, res) => {
+reservationrouter.put("/:id", authorizeRoles('admin', 'user'), async (req, res) => {
     try {
         const { id } = req.params;
         const { guest_id, room_id } = req.body
@@ -86,7 +86,7 @@ reservationrouter.put("/:id", authorizeRoles('admin'), async (req, res) => {
     }
 })
 
-reservationrouter.delete("/:id", authorizeRoles('admin'), async (req, res) => {
+reservationrouter.delete("/:id", authorizeRoles('admin', 'user'), async (req, res) => {
     try {
         const { id } = req.params;
 

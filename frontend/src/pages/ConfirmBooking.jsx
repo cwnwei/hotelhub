@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { roomClient } from "@/api/roomClient";
-import { guestClient } from "@/api/guestClient";
 import { reservationClient } from "@/api/reservationClient";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -15,17 +14,17 @@ import { differenceInDays, format } from "date-fns";
 import { useLocation } from "react-router-dom";
 
 export default function ConfirmBooking() {
+  const user = JSON.parse(localStorage.getItem("user"));
   const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
   const roomId = urlParams.get("roomId");
   const checkIn = urlParams.get("checkIn");
   const checkOut = urlParams.get("checkOut");
   const guestCount = parseInt(urlParams.get("guests")) || 1;
-  console.log(urlParams);
   const [formData, setFormData] = useState({
-    full_name: "",
-    email: "",
-    phone: "",
+    full_name: user?.full_name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
     special_requests: ""
   });
   const [bookingComplete, setBookingComplete] = useState(false);
@@ -36,7 +35,6 @@ export default function ConfirmBooking() {
     queryFn: async () => {
       if (!roomId) return null;
       const rooms = await roomClient.list(); // fetch all rooms
-      console.log("rooms", rooms);
       return rooms.find(r => r.id.toString() === roomId) || null;
     }
   });
@@ -46,10 +44,6 @@ export default function ConfirmBooking() {
     : 0;
   const totalAmount = room ? room.price_per_night * nights : 0;
 
-  const createGuestMutation = useMutation({
-    mutationFn: (data) => guestClient.create(data)
-  });
-
   const createReservationMutation = useMutation({
     mutationFn: (data) => reservationClient.create(data)
   });
@@ -57,17 +51,10 @@ export default function ConfirmBooking() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Create guest record
-    const guest = await createGuestMutation.mutateAsync({
-      full_name: formData.full_name,
-      email: formData.email,
-      phone: formData.phone
-    });
-
     // Create reservation
     const reservation = await createReservationMutation.mutateAsync({
-      guest_id: guest.id,
-      guest_name: formData.full_name,
+      guest_id: user._id,
+      guest_name: user.full_name,
       room_id: roomId,
       room_number: room.room_number,
       check_in_date: checkIn,
@@ -84,7 +71,7 @@ export default function ConfirmBooking() {
     setBookingComplete(true);
   };
 
-  const isLoading = createGuestMutation.isPending || createReservationMutation.isPending;
+  const isLoading = createReservationMutation.isPending;
 
   if (bookingComplete) {
     return (
@@ -171,6 +158,7 @@ export default function ConfirmBooking() {
                       onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                       placeholder="John Smith"
                       required
+                      disabled
                     />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -182,6 +170,7 @@ export default function ConfirmBooking() {
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="john@example.com"
                         required
+                        disabled
                       />
                     </div>
                     <div className="space-y-2">
@@ -191,6 +180,7 @@ export default function ConfirmBooking() {
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="+1 234 567 8900"
                         required
+                        disabled
                       />
                     </div>
                   </div>
