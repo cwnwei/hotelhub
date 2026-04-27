@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/lib/AuthContext";
+import { reservationClient } from "@/api/reservationClient";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, Calendar, Search, BedDouble } from "lucide-react";
+import { ChevronLeft, Calendar, BedDouble } from "lucide-react";
 import { format, isPast, isFuture, isToday } from "date-fns";
 
 const statusStyles = {
@@ -17,36 +18,19 @@ const statusStyles = {
 };
 
 export default function MyReservations() {
-  const [email, setEmail] = useState("");
-  const [searchEmail, setSearchEmail] = useState("");
-  const [hasSearched, setHasSearched] = useState(false);
+  const { isAuthenticated, isLoadingAuth, navigateToLogin } = useAuth();
 
-  const { data: guests = [] } = useQuery({
-    queryKey: ["guestByEmail", searchEmail],
-    queryFn: async () => {
-      // base44 removed — returning empty guest list for now
-      return [];
-    },
-    enabled: !!searchEmail
-  });
-
-  const guestIds = guests.map(g => g.id);
+  useEffect(() => {
+    if (!isLoadingAuth && !isAuthenticated) {
+      navigateToLogin();
+    }
+  }, [isLoadingAuth, isAuthenticated, navigateToLogin]);
 
   const { data: reservations = [], isLoading } = useQuery({
-    queryKey: ["myReservations", guestIds],
-    queryFn: async () => {
-      // base44 removed — return empty reservations for now
-      if (guestIds.length === 0) return [];
-      return [];
-    },
-    enabled: guestIds.length > 0
+    queryKey: ["myReservations"],
+    queryFn: () => reservationClient.getMyReservations(),
+    enabled: isAuthenticated
   });
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    setSearchEmail(email);
-    setHasSearched(true);
-  };
 
   const upcomingReservations = reservations.filter(r => 
     r.status !== "cancelled" && r.status !== "checked_out" && 
@@ -67,13 +51,28 @@ export default function MyReservations() {
       <Card className="border-0 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
         <CardContent className="p-0">
           <div className="flex flex-col md:flex-row">
-            <div className="md:w-48 h-32 md:h-auto bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-              <BedDouble className="w-10 h-10 text-slate-300" />
+            <div className="md:w-48 h-32 md:h-auto bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center relative overflow-hidden">
+              {reservation.hotel?.image_url ? (
+                <img
+                  src={reservation.hotel.image_url}
+                  alt={reservation.hotel.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <BedDouble className="w-10 h-10 text-slate-300" />
+              )}
             </div>
             <div className="flex-1 p-5">
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h3 className="font-semibold text-slate-900">Room {reservation.room_number}</h3>
+                  <div>
+                    <h3 className="font-semibold text-slate-900">
+                      Room {reservation.room?.room_number || reservation.room_number}
+                    </h3>
+                    {reservation.hotel && (
+                      <p className="text-xs text-slate-500">{reservation.hotel.name}</p>
+                    )}
+                  </div>
                   <p className="text-sm text-slate-500">{reservation.num_guests} guest(s)</p>
                 </div>
                 <Badge className={`${status.bg} ${status.text} border-0`} variant="outline">
@@ -133,34 +132,10 @@ export default function MyReservations() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-light text-slate-900 mb-2">My Reservations</h1>
-        <p className="text-slate-500 mb-8">Enter your email to view your bookings</p>
-
-        {/* Search Form */}
-        <Card className="border-0 shadow-sm mb-8">
-          <CardContent className="p-6">
-            <form onSubmit={handleSearch} className="flex gap-3">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address"
-                  className="pl-10 border-slate-200"
-                  required
-                />
-              </div>
-              <Button type="submit" className="bg-slate-900 hover:bg-slate-800">
-                Find Reservations
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <p className="text-slate-500 mb-8">View your upcoming and past hotel reservations</p>
 
         {/* Results */}
-        {hasSearched && (
-          <>
-            {isLoading ? (
+        {(isLoading || isLoadingAuth) ? (
               <div className="space-y-4">
                 {[...Array(3)].map((_, i) => (
                   <div key={i} className="h-32 rounded-xl bg-slate-200 animate-pulse" />
@@ -168,7 +143,7 @@ export default function MyReservations() {
               </div>
             ) : reservations.length === 0 ? (
               <Card className="border-0 shadow-sm p-12 text-center">
-                <p className="text-slate-500 mb-4">No reservations found for {searchEmail}</p>
+                <p className="text-slate-500 mb-4">No reservations found</p>
                 <Link to={createPageUrl("BookRoom")}>
                   <Button className="bg-slate-900 hover:bg-slate-800">
                     Book Your First Stay
@@ -200,8 +175,6 @@ export default function MyReservations() {
                 )}
               </div>
             )}
-          </>
-        )}
       </div>
     </div>
   );

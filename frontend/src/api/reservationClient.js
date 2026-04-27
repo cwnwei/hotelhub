@@ -70,4 +70,16 @@ export const reservationClient = {
 
     return response.json();
   },
+
+  async getMyReservations() {
+    const response = await fetchWithAuth(`${API_URL}/reservations/my-reservations`, {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch reservations");
+    }
+    return response.json();
+  },
 };
