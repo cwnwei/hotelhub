@@ -36,16 +36,29 @@ export default function BookRoom() {
   const [roomType, setRoomType] = useState(urlParams.get("roomType") || "all");
   // const [selectedRoom, setSelectedRoom] = useState(null);
 
-  const { data: rooms = [], isLoading } = useQuery({
-    queryKey: ["availableRooms"],
-    queryFn: () => roomClient.list(),
+  // Validate dates before querying
+  const hasValidDates = checkIn && checkOut && new Date(checkOut) > new Date(checkIn);
+
+  const { data: rooms = [], isLoading, error } = useQuery({
+    queryKey: hasValidDates
+      ? ["searchRooms", checkIn, checkOut, guests, roomType]
+      : ["availableRooms"],
+    queryFn: async () => {
+      if (hasValidDates) {
+        return roomClient.search({ checkIn, checkOut, guests, roomType });
+      }
+      return roomClient.list();
+    },
   });
 
-  const filteredRooms = rooms.filter(room => {
-    const matchesType = roomType === "all" || room.room_type === roomType;
-    const matchesGuests = room.max_guests >= guests;
-    return matchesType && matchesGuests;
-  });
+  // Only apply client-side filtering when using list() endpoint
+  const filteredRooms = hasValidDates
+    ? rooms
+    : rooms.filter(room => {
+        const matchesType = roomType === "all" || room.room_type === roomType;
+        const matchesGuests = room.max_guests >= guests;
+        return matchesType && matchesGuests;
+      });
 
   const nights = checkIn && checkOut 
     ? differenceInDays(new Date(checkOut), new Date(checkIn)) 
@@ -139,10 +152,24 @@ export default function BookRoom() {
           </div>
         </Card>
 
+        {/* Show validation error if dates are invalid */}
+        {checkIn && checkOut && new Date(checkOut) <= new Date(checkIn) && (
+          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
+            Check-out date must be after check-in date
+          </div>
+        )}
+
+        {/* Show API error if search fails */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+            {error.message}
+          </div>
+        )}
+
         {/* Results */}
         <div className="mb-4">
           <h2 className="text-2xl font-light text-slate-900">
-            Available Rooms
+            {hasValidDates ? "Available Rooms for Your Dates" : "Browse All Rooms"}
             <span className="text-sm text-slate-500 ml-2">({filteredRooms.length} found)</span>
           </h2>
         </div>
@@ -155,7 +182,11 @@ export default function BookRoom() {
           </div>
         ) : filteredRooms.length === 0 ? (
           <Card className="p-12 text-center border-0 shadow-sm">
-            <p className="text-slate-500">No rooms available matching your criteria</p>
+            <p className="text-slate-500">
+              {hasValidDates
+                ? "No rooms available for the selected dates. Try different dates or filters."
+                : "No rooms available matching your criteria"}
+            </p>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

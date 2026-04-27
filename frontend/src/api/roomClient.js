@@ -18,6 +18,39 @@ export const roomClient = {
     return response.json();
   },
 
+  async search({ checkIn, checkOut, guests, roomType }) {
+    const params = new URLSearchParams({
+      check_in_date: checkIn,
+      check_out_date: checkOut,
+      num_guests: guests.toString()
+    });
+
+    if (roomType && roomType !== "all") {
+      params.set("room_type", roomType);
+    }
+
+    const response = await fetch(`${API_URL}/rooms/search?${params.toString()}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to search rooms");
+    }
+
+    const data = await response.json();
+
+    // Transform response to match list() format for consistency
+    return data.rooms.map(room => ({
+      ...room,
+      hotel_name: room.hotel?.name,
+      hotel_id: room.hotel?.id
+    }));
+  },
+
   async create(data) {
     const response = await fetchWithAuth(`${API_URL}/rooms`, {
       method: "POST",

@@ -19,6 +19,12 @@ export default function Home() {
   };
 
   const handleSearch = () => {
+    // Validate dates before navigating
+    if (checkIn && checkOut && new Date(checkOut) <= new Date(checkIn)) {
+      alert("Check-out date must be after check-in date");
+      return;
+    }
+
     const params = new URLSearchParams();
     if (checkIn) params.set("checkIn", checkIn);
     if (checkOut) params.set("checkOut", checkOut);
