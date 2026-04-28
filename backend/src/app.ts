@@ -50,4 +50,9 @@ const main = async () => {
     });
 }
 
-main();
+// Only start server if this file is run directly (not imported in tests)
+if (require.main === module) {
+    main();
+}
+
+export default app;
