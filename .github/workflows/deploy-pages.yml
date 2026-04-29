@@ -1,9 +1,7 @@
-name: Deploy Frontend to GitHub Pages
+name: Deploy Frontend to GitHub Pages and Backend to Render
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
     branches: [ "main" ]
 
 permissions:
@@ -65,3 +63,11 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  deploy-render:
+    needs: build   # 👈 wait for BOTH jobs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Render Deploy
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
