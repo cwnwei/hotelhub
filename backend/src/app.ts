@@ -19,7 +19,7 @@ const port = process.env.PORT || "3000";
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin: 'http://localhost:5173', // TODO: add into env for production
+    origin: process.env.ALLOWED_ORIGIN || 'http://localhost:5173', // TODO: add into env for production
     credentials: true
 }))
 
