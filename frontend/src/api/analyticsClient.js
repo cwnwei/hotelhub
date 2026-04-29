@@ -28,7 +28,7 @@ export const analyticsClient = {
             headers: {
                 "Content-Type": "application/json",
             },
-        });
+        }); 
 
         if (!response.ok) {
             const error = await response.json();
@@ -56,13 +56,47 @@ export const analyticsClient = {
         return response.json();
     },
 
-    exportToCSV(filters = {}) {
+    async exportToCSV(filters = {}) {
         const params = new URLSearchParams(filters);
-        window.location.href = `${API_URL}/analytics/export/csv?${params}`;
+        const response = await fetchWithAuth(`${API_URL}/analytics/export/csv?${params}`, {
+            method: "GET",
+            credentials: "include",
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to export CSV");
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `reservations-export-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
     },
 
-    exportToPDF(filters = {}) {
+    async exportToPDF(filters = {}) {
         const params = new URLSearchParams(filters);
-        window.location.href = `${API_URL}/analytics/export/pdf?${params}`;
+        const response = await fetchWithAuth(`${API_URL}/analytics/export/pdf?${params}`, {
+            method: "GET",
+            credentials: "include",
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to export PDF");
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `reservations-report-${new Date().toISOString().split('T')[0]}.html`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
     }
 };

@@ -3,6 +3,9 @@ import { DateFilter } from "@/components/analytics/DateFilter";
 import { ReportCard } from "@/components/analytics/ReportCard";
 import { ExportButtons } from "@/components/analytics/ExportButtons";
 import { BookingTrendsChart } from "@/components/analytics/BookingTrendsChart";
+import { RevenueChart } from "@/components/analytics/RevenueChart";
+import { OccupancyBreakdown } from "@/components/analytics/OccupancyBreakdown";
+import { PaymentStatusCard } from "@/components/analytics/PaymentStatusCard";
 import { analyticsClient } from "@/api/analyticsClient";
 import { DollarSign, Users, Home, TrendingUp } from "lucide-react";
 
@@ -79,28 +82,28 @@ export const Analytics = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <ReportCard
                         title="Total Revenue"
-                        value={`$${revenueData?.totalRevenue?.toFixed(2) || "0.00"}`}
-                        subtitle={`${revenueData?.count || 0} bookings`}
+                        value={`$${revenueData?.summary?.totalRevenue?.toFixed(2) || "0.00"}`}
+                        subtitle={`${revenueData?.summary?.totalReservations || 0} bookings`}
                         isLoading={isLoadingRevenue}
                         icon={DollarSign}
                     />
                     <ReportCard
                         title="Occupancy Rate"
-                        value={`${occupancyData?.occupancyRate || "0"}%`}
-                        subtitle={`${occupancyData?.occupiedRooms || 0} of ${occupancyData?.totalRooms || 0} rooms`}
+                        value={`${occupancyData?.summary?.occupancyRate || "0"}%`}
+                        subtitle={`${occupancyData?.summary?.occupiedRooms || 0} of ${occupancyData?.summary?.totalRooms || 0} rooms`}
                         isLoading={isLoadingOccupancy}
                         icon={Home}
                     />
                     <ReportCard
                         title="Total Bookings"
-                        value={revenueData?.count || "0"}
+                        value={revenueData?.summary?.totalReservations || "0"}
                         subtitle="For selected period"
                         isLoading={isLoadingRevenue}
                         icon={Users}
                     />
                     <ReportCard
                         title="Avg Revenue/Booking"
-                        value={`$${revenueData && revenueData.count > 0 ? (revenueData.totalRevenue / revenueData.count).toFixed(2) : "0.00"}`}
+                        value={`$${revenueData?.summary && revenueData.summary.totalReservations > 0 ? (revenueData.summary.totalRevenue / revenueData.summary.totalReservations).toFixed(2) : "0.00"}`}
                         subtitle="Average per booking"
                         isLoading={isLoadingRevenue}
                         icon={TrendingUp}
@@ -108,8 +111,14 @@ export const Analytics = () => {
                 </div>
 
                 {/* Charts Section */}
-                <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <BookingTrendsChart filters={filters} />
+                    <RevenueChart filters={filters} />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <OccupancyBreakdown filters={filters} />
+                    <PaymentStatusCard filters={filters} />
                 </div>
 
             </div>

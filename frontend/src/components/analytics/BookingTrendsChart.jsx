@@ -11,8 +11,8 @@ export const BookingTrendsChart = ({ filters }) => {
         const fetchTrends = async () => {
             setIsLoading(true);
             try {
-                const trends = await analyticsClient.getBookingTrends(filters);
-                setData(trends);
+                const response = await analyticsClient.getBookingTrends(filters);
+                setData(response.trends || []);
             } catch (error) {
                 console.error("Failed to fetch trends:", error);
             } finally {
@@ -32,11 +32,14 @@ export const BookingTrendsChart = ({ filters }) => {
                 <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={data}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="_id" />
-                        <YAxis />
+                        <XAxis dataKey="month" />
+                        <YAxis yAxisId="left" />
+                        <YAxis yAxisId="right" orientation="right" />
                         <Tooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="count" stroke="#3b82f6" name="Bookings" />
+                        <Line yAxisId="left" type="monotone" dataKey="count" stroke="#3b82f6" name="Bookings" strokeWidth={2} />
+                        <Line yAxisId="right" type="monotone" dataKey="revenue" stroke="#10b981" name="Revenue ($)" strokeWidth={2} />
+                        <Line yAxisId="left" type="monotone" dataKey="guests" stroke="#f59e0b" name="Guests" strokeWidth={2} />
                     </LineChart>
                 </ResponsiveContainer>
             )}
