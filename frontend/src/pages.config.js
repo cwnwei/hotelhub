@@ -2,6 +2,8 @@ import Dashboard from './pages/Dashboard';
 import Rooms from './pages/Rooms';
 import Guests from './pages/Guests';
 import Reservations from './pages/Reservations';
+import Hotels from './pages/Hotels';
+import Analytics from './pages/Analytics';
 import __Layout from './Layout.jsx';
 
 export const PAGES = {
@@ -9,6 +11,8 @@ export const PAGES = {
     "Rooms": Rooms,
     "Guests": Guests,
     "Reservations": Reservations,
+    "Hotels": Hotels,
+    "Analytics": Analytics
 }
 
 export const pagesConfig = {

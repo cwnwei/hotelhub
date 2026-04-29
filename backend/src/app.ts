@@ -1,5 +1,10 @@
 import express from "express";
 import authrouter from "./routes/auth";
+import roomrouter from "./routes/room";
+import hotelrouter from "./routes/hotel";
+import reservationrouter from "./routes/reservations";
+import guestrouter from "./routes/guest";
+import analyticsrouter from "./routes/analytics";
 import dotenv from "dotenv";
 import cors from "cors"
 import { connectDB } from "./config/database";
@@ -9,7 +14,7 @@ import cookieParser from 'cookie-parser';
 
 dotenv.config();
 const app = express();
-const port = "3000";
+const port = process.env.PORT || "3000";
 
 app.use(express.json())
 app.use(cookieParser())
@@ -19,6 +24,11 @@ app.use(cors({
 }))
 
 app.use("/auth", authrouter)
+app.use("/rooms", roomrouter)
+app.use("/hotels", hotelrouter)
+app.use("/reservations", reservationrouter)
+app.use("/guests", guestrouter)
+app.use("/analytics", analyticsrouter)
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
@@ -42,4 +52,9 @@ const main = async () => {
     });
 }
 
-main();
+// Only start server if this file is run directly (not imported in tests)
+if (require.main === module) {
+    main();
+}
+
+export default app;

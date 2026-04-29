@@ -51,9 +51,17 @@ authrouter.post("/login", async (req, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000,
     })
 
+    res.cookie("jwtToken", jwt_token, {
+        httpOnly: true,
+        secure: false, // false for local testinng
+        sameSite: "lax",
+        path: "/",
+        maxAge: 5 * 60 * 1000,
+    })
+
     // return jwt access token
     const { password: remove_password, refreshToken, ...body} = user.toJSON()
-    res.json({jwt_token, ...body})
+    res.json(body)
 })
 
 authrouter.post("/logout", async (req, res) => {
@@ -69,6 +77,7 @@ authrouter.post("/logout", async (req, res) => {
 
     // clear client cookies
     res.clearCookie("refreshToken")
+    res.clearCookie("jwtToken")
     res.sendStatus(200)
 })
 
@@ -85,15 +94,21 @@ authrouter.post("/refresh", async (req, res) => {
         const user = await User.findById(decoded.userId)
         if (!user)
             return res.status(404).json("User not found");
-        if (!user.refreshToken) return res.status(403).json("No refresh token")
+        if (!user.refreshToken) return res.status(401).json("No refresh token, please login again")
 
         const new_jwt_token = generateAccessToken(user.id, user.role);
-        res.send(new_jwt_token);
+        res.cookie("jwtToken", new_jwt_token, {
+            httpOnly: true,
+            secure: false, // false for local testinng
+            sameSite: "lax",
+            path: "/",
+            maxAge: 5 * 60 * 1000,
+        })
+        res.sendStatus(200)
     }
     catch {
-        res.status(401).json("Invalid refresh token")
+        res.status(401).json("Invalid refresh token, please login again")
     }
-
 });
 
 export default authrouter
