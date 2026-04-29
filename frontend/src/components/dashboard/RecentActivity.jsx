@@ -12,7 +12,11 @@ const activityIcons = {
 
 export default function RecentActivity({ reservations }) {
   const recentReservations = reservations
-    .sort((a, b) => new Date(b.updated_date) - new Date(a.updated_date))
+    .sort((a, b) => {
+      const dateA = new Date(a.check_in_date || 0);
+      const dateB = new Date(b.check_in_date || 0);
+      return dateB - dateA;
+    })
     .slice(0, 5);
 
   return (
@@ -37,7 +41,7 @@ export default function RecentActivity({ reservations }) {
                     {res.guest_name || "Guest"}
                   </p>
                   <p className="text-xs text-slate-400">
-                    Room {res.room_number} • {format(new Date(res.updated_date), "MMM d, h:mm a")}
+                    Room {res.room_number} • {format(new Date(res.check_in_date), "MMM d, h:mm a")}
                   </p>
                 </div>
                 <Badge variant="secondary" className="text-xs capitalize bg-slate-100 text-slate-600 border-0">
