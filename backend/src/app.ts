@@ -4,6 +4,7 @@ import roomrouter from "./routes/room";
 import hotelrouter from "./routes/hotel";
 import reservationrouter from "./routes/reservations";
 import guestrouter from "./routes/guest";
+import analyticsrouter from "./routes/analytics";
 import dotenv from "dotenv";
 import cors from "cors"
 import { connectDB } from "./config/database";
@@ -27,6 +28,7 @@ app.use("/rooms", roomrouter)
 app.use("/hotels", hotelrouter)
 app.use("/reservations", reservationrouter)
 app.use("/guests", guestrouter)
+app.use("/analytics", analyticsrouter)
 
 app.get("/", (req, res) => {
     res.send("Hello World!");

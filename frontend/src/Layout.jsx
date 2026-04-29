@@ -9,7 +9,8 @@ import {
   Menu,
   X,
   Hotel,
-  LogOut
+  LogOut,
+  BarChart3
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { HotelProvider, useHotel } from "@/lib/HotelContext";
@@ -51,7 +52,8 @@ function LayoutInner({ children, currentPageName }) {
     { name: "Hotels", page: "Hotels", icon: Hotel },
     { name: "Rooms", page: "Rooms", icon: BedDouble },
     { name: "Guests", page: "Guests", icon: Users },
-    { name: "Reservations", page: "Reservations", icon: CalendarDays }
+    { name: "Reservations", page: "Reservations", icon: CalendarDays },
+    { name: "Analytics", page: "Analytics", icon: BarChart3 }
   ];
 
   return (
