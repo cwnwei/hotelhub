@@ -38,3 +38,7 @@ jobs:
 
       - name: Run backend tests with coverage
         run: npm run test:coverage
+        env:
+          ACCESS_TOKEN_SECRET: test-access-token-secret
+          REFRESH_TOKEN_SECRET: test-refresh-token-secret
+          NODE_ENV: test
