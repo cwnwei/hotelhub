@@ -40,7 +40,7 @@ describe('Room Routes Integration Tests', () => {
       expect(response.body.length).toBe(2);
 
       // Verify rooms are returned with id field
-      const roomIds = response.body.map((r) => r.id);
+      const roomIds = response.body.map((r: any) => r.id);
       expect(roomIds).toContain(room1._id.toString());
       expect(roomIds).toContain(room2._id.toString());
     });
@@ -79,7 +79,7 @@ describe('Room Routes Integration Tests', () => {
       expect(response.body.rooms.length).toBeGreaterThan(0);
 
       // Verify room is in results
-      const foundRoom = response.body.rooms.find((r) => r.room_number === '201');
+      const foundRoom = response.body.rooms.find((r: any) => r.room_number === '201');
       expect(foundRoom).toBeDefined();
       expect(foundRoom.room_type).toBe('deluxe');
       expect(foundRoom.hotel).toBeDefined();
@@ -196,8 +196,8 @@ describe('Room Routes Integration Tests', () => {
       // Verify room is in database
       const dbRoom = await Room.findById(response.body.id);
       expect(dbRoom).toBeTruthy();
-      expect(dbRoom.room_number).toBe('601');
-      expect(dbRoom.hotel_id.toString()).toBe(hotel._id.toString());
+      expect(dbRoom!.room_number).toBe('601');
+      expect(dbRoom!.hotel_id.toString()).toBe(hotel._id.toString());
     });
 
     it('should return 403 for non-admin user', async () => {
@@ -318,8 +318,8 @@ describe('Room Routes Integration Tests', () => {
 
       // Verify update in database
       const dbRoom = await Room.findById(room._id);
-      expect(dbRoom.price_per_night).toBe(150);
-      expect(dbRoom.status).toBe('cleaning');
+      expect(dbRoom!.price_per_night).toBe(150);
+      expect(dbRoom!.status).toBe('cleaning');
     });
 
     it('should return 404 for non-existent room', async () => {

@@ -41,12 +41,12 @@ describe('Auth Routes Integration Tests', () => {
 
       const user = await User.findOne({ email: 'john@test.com' });
       expect(user).toBeTruthy();
-      expect(user.full_name).toBe('John Doe');
-      expect(user.password).not.toBe(VALID_TEST_PASSWORD);
-      expect(user.role).toBe('user');
+      expect(user!.full_name).toBe('John Doe');
+      expect(user!.password).not.toBe(VALID_TEST_PASSWORD);
+      expect(user!.role).toBe('user');
 
       // Verify password is properly hashed
-      const isPasswordHashed = await bcrypt.compare(VALID_TEST_PASSWORD, user.password);
+      const isPasswordHashed = await bcrypt.compare(VALID_TEST_PASSWORD, user!.password);
       expect(isPasswordHashed).toBe(true);
     });
 
@@ -107,19 +107,19 @@ describe('Auth Routes Integration Tests', () => {
       expect(cookies).toBeDefined();
       expect(Array.isArray(cookies)).toBe(true);
 
-      const cookiesArray = cookies as string[];
+      const cookiesArray = cookies as unknown as string[];
       expect(cookiesArray.length).toBeGreaterThan(0);
 
-      const jwtCookie = cookiesArray.find(c => c.startsWith('jwtToken='));
-      const refreshCookie = cookiesArray.find(c => c.startsWith('refreshToken='));
+      const jwtCookie = cookiesArray.find((c: string) => c.startsWith('jwtToken='));
+      const refreshCookie = cookiesArray.find((c: string) => c.startsWith('refreshToken='));
 
       expect(jwtCookie).toBeDefined();
       expect(refreshCookie).toBeDefined();
 
       // Verify refresh token was saved to database
       const user = await User.findOne({ email: 'login@test.com' });
-      expect(user.refreshToken).toBeTruthy();
-      expect(user.refreshToken).not.toBe('');
+      expect(user!.refreshToken).toBeTruthy();
+      expect(user!.refreshToken).not.toBe('');
     });
 
     it('should return 404 when user does not exist', async () => {
@@ -167,11 +167,11 @@ describe('Auth Routes Integration Tests', () => {
           password: VALID_TEST_PASSWORD,
         });
 
-      const cookies = loginResponse.headers['set-cookie'] as string[];
+      const cookies = loginResponse.headers['set-cookie'] as unknown as string[];
 
       // Verify refresh token is in database
       const userBeforeLogout = await User.findById(user._id);
-      expect(userBeforeLogout.refreshToken).toBeTruthy();
+      expect(userBeforeLogout!.refreshToken).toBeTruthy();
 
       // Logout with cookies
       const logoutResponse = await request(app)
@@ -182,10 +182,10 @@ describe('Auth Routes Integration Tests', () => {
 
       // Verify refresh token is cleared from database
       const userAfterLogout = await User.findById(user._id);
-      expect(userAfterLogout.refreshToken).toBe('');
+      expect(userAfterLogout!.refreshToken).toBe('');
 
       // Verify cookies are cleared
-      const logoutCookies = logoutResponse.headers['set-cookie'] as string[];
+      const logoutCookies = logoutResponse.headers['set-cookie'] as unknown as string[];
       expect(logoutCookies).toBeDefined();
     });
 
@@ -211,10 +211,10 @@ describe('Auth Routes Integration Tests', () => {
           password: VALID_TEST_PASSWORD,
         });
 
-      const cookies = loginResponse.headers['set-cookie'] as string[];
+      const cookies = loginResponse.headers['set-cookie'] as unknown as string[];
 
       // Extract refresh token cookie
-      const refreshTokenCookie = cookies.find(c => c.startsWith('refreshToken='));
+      const refreshTokenCookie = cookies.find((c: string) => c.startsWith('refreshToken='));
       expect(refreshTokenCookie).toBeDefined();
 
       // Call refresh endpoint
@@ -225,10 +225,10 @@ describe('Auth Routes Integration Tests', () => {
       expect(refreshResponse.status).toBe(200);
 
       // Verify new JWT cookie is set
-      const newCookies = refreshResponse.headers['set-cookie'] as string[];
+      const newCookies = refreshResponse.headers['set-cookie'] as unknown as string[];
       expect(newCookies).toBeDefined();
 
-      const newJwtCookie = newCookies.find(c => c.startsWith('jwtToken='));
+      const newJwtCookie = newCookies.find((c: string) => c.startsWith('jwtToken='));
       expect(newJwtCookie).toBeDefined();
     });
 
@@ -253,8 +253,8 @@ describe('Auth Routes Integration Tests', () => {
           password: VALID_TEST_PASSWORD,
         });
 
-      const cookies = loginResponse.headers['set-cookie'] as string[];
-      const refreshTokenCookie = cookies.find(c => c.startsWith('refreshToken='));
+      const cookies = loginResponse.headers['set-cookie'] as unknown as string[];
+      const refreshTokenCookie = cookies.find((c: string) => c.startsWith('refreshToken='));
 
       // Delete the user
       await User.findByIdAndDelete(user._id);

@@ -63,12 +63,12 @@ describe('Reservation Routes Integration Tests', () => {
       expect(response.body.length).toBe(2);
 
       // Verify reservations are returned with id and hotel_id fields
-      const reservationIds = response.body.map((r) => r.id);
+      const reservationIds = response.body.map((r: any) => r.id);
       expect(reservationIds).toContain(reservation1._id.toString());
       expect(reservationIds).toContain(reservation2._id.toString());
 
       // Verify hotel_id is enriched
-      response.body.forEach((r) => {
+      response.body.forEach((r: any) => {
         expect(r).toHaveProperty('hotel_id');
         expect(r.hotel_id.toString()).toBe(hotel._id.toString());
       });
@@ -166,8 +166,8 @@ describe('Reservation Routes Integration Tests', () => {
       // Verify reservation is in database
       const dbReservation = await Reservation.findById(response.body.id);
       expect(dbReservation).toBeTruthy();
-      expect(dbReservation.guest_id).toBe(user._id.toString());
-      expect(dbReservation.room_id).toBe(room._id.toString());
+      expect(dbReservation!.guest_id).toBe(user._id.toString());
+      expect(dbReservation!.room_id).toBe(room._id.toString());
     });
 
     it('should return 400 when room does not exist', async () => {
@@ -275,9 +275,9 @@ describe('Reservation Routes Integration Tests', () => {
 
       // Verify update in database
       const dbReservation = await Reservation.findById(reservation._id);
-      expect(dbReservation.num_guests).toBe(3);
-      expect(dbReservation.status).toBe('confirmed');
-      expect(dbReservation.total_amount).toBe(600);
+      expect(dbReservation!.num_guests).toBe(3);
+      expect(dbReservation!.status).toBe('confirmed');
+      expect(dbReservation!.total_amount).toBe(600);
     });
 
     it('should return 404 for non-existent reservation', async () => {
