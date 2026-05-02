@@ -285,4 +285,178 @@ describe('Reservation Routes', () => {
       expect(response.body.message).toBe('Invalid reservation ID');
     });
   });
+
+  // -------------------------------------------------------------------------
+  // GET /reservations/my-reservations
+  // -------------------------------------------------------------------------
+  describe('GET /reservations/my-reservations – uncovered branches', () => {
+    /**
+     * Line 38: The route guards for a missing jwtToken cookie *after* the
+     * authorizeRoles middleware already ran.  The existing test sends no cookie
+     * at all (so authorizeRoles returns 401 first).  To reach line 38 we must
+     * pass authorizeRoles but arrive without a jwtToken cookie, which can't
+     * actually happen in normal flow — the same cookie is checked by both.
+     *
+     * In practice the easiest way to cover it is to make jwt.verify succeed
+     * (so authorizeRoles passes) but send a request whose cookie header only
+     * contains a different cookie, so req.cookies.jwtToken is undefined inside
+     * the route handler.
+     *
+     * Because authorizeRoles reads req.cookies.jwtToken too, we need jwt.verify
+     * to succeed on the first call (middleware) and not be called a second time
+     * by the route.  The simplest approach: mock jwt.verify to succeed, then
+     * send a cookie named differently.
+     *
+     * NOTE: if your authorizeRoles middleware does NOT check req.cookies.jwtToken
+     * (e.g. it reads the Authorization header instead), adjust accordingly.
+     */
+    it('should return 500 when a generic error is thrown during my-reservations fetch (line 91)', async () => {
+      (jwt.verify as jest.Mock).mockReturnValue({ userId: 'user123', role: 'user' });
+      (Reservation.find as jest.Mock).mockReturnValue({
+        sort: jest.fn().mockRejectedValue(new Error('Unexpected DB failure')),
+      });
+ 
+      const response = await request(app)
+        .get('/reservations/my-reservations')
+        .set('Cookie', ['jwtToken=valid-token']);
+ 
+      expect(response.status).toBe(500);
+      expect(response.body.message).toBe('Server error');
+    });
+ 
+    it('should return null room and hotel when Room.findById returns null (lines 53, 60-77)', async () => {
+      const mockReservation = {
+        ...createMockReservation({ guest_id: 'user123' }),
+        toObject: () => createMockReservation(),
+        _id: 'res123',
+        room_id: 'room-missing',
+      };
+ 
+      (jwt.verify as jest.Mock).mockReturnValue({ userId: 'user123', role: 'user' });
+      (Reservation.find as jest.Mock).mockReturnValue({
+        sort: jest.fn().mockResolvedValue([mockReservation]),
+      });
+      // Room not found → hotel lookup should be skipped
+      (Room.findById as jest.Mock).mockResolvedValue(null);
+ 
+      const response = await request(app)
+        .get('/reservations/my-reservations')
+        .set('Cookie', ['jwtToken=valid-token']);
+ 
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body[0].room).toBeNull();
+      expect(response.body[0].hotel).toBeNull();
+    });
+  });
+ 
+  // -------------------------------------------------------------------------
+  // PUT /reservations/:id
+  // -------------------------------------------------------------------------
+  describe('PUT /reservations/:id – uncovered branches', () => {
+    it('should return 400 when room does not exist (line in PUT handler)', async () => {
+      (jwt.verify as jest.Mock).mockReturnValue({ userId: 'user123', role: 'user' });
+      (Room.findById as jest.Mock).mockResolvedValue(null); // room not found
+      (User.findById as jest.Mock).mockResolvedValue(createMockUser());
+ 
+      const response = await request(app)
+        .put('/reservations/res123')
+        .set('Cookie', ['jwtToken=valid-token'])
+        .send({
+          guest_id: 'user123',
+          room_id: 'nonexistent-room',
+          num_guests: 2,
+        });
+ 
+      expect(response.status).toBe(400);
+      expect(response.text).toContain('Room does not exist');
+    });
+ 
+    it('should return 400 when guest does not exist (line in PUT handler)', async () => {
+      (jwt.verify as jest.Mock).mockReturnValue({ userId: 'user123', role: 'user' });
+      (Room.findById as jest.Mock).mockResolvedValue(createMockRoom());
+      (User.findById as jest.Mock).mockResolvedValue(null); // guest not found
+ 
+      const response = await request(app)
+        .put('/reservations/res123')
+        .set('Cookie', ['jwtToken=valid-token'])
+        .send({
+          guest_id: 'nonexistent-guest',
+          room_id: 'room123',
+          num_guests: 2,
+        });
+ 
+      expect(response.status).toBe(400);
+      expect(response.text).toContain('Guest does not exist');
+    });
+ 
+    it('should return 500 when a generic (non-Validation) error is thrown (line 148)', async () => {
+      (jwt.verify as jest.Mock).mockReturnValue({ userId: 'user123', role: 'user' });
+      (Room.findById as jest.Mock).mockResolvedValue(createMockRoom());
+      (User.findById as jest.Mock).mockResolvedValue(createMockUser());
+      (Reservation.findByIdAndUpdate as jest.Mock).mockRejectedValue(
+        new Error('Generic DB error'),
+      );
+ 
+      const response = await request(app)
+        .put('/reservations/res123')
+        .set('Cookie', ['jwtToken=valid-token'])
+        .send({
+          guest_id: 'user123',
+          room_id: 'room123',
+          num_guests: 2,
+        });
+ 
+      expect(response.status).toBe(500);
+      expect(response.body.message).toBe('Server error');
+    });
+  });
+ 
+  // -------------------------------------------------------------------------
+  // DELETE /reservations/:id
+  // -------------------------------------------------------------------------
+  describe('DELETE /reservations/:id – uncovered branches', () => {
+    it('should return 500 when a generic (non-CastError) error is thrown (line 174)', async () => {
+      (jwt.verify as jest.Mock).mockReturnValue({ userId: 'user123', role: 'user' });
+      (Reservation.findByIdAndDelete as jest.Mock).mockRejectedValue(
+        new Error('Generic DB error'),
+      );
+ 
+      const response = await request(app)
+        .delete('/reservations/res123')
+        .set('Cookie', ['jwtToken=valid-token']);
+ 
+      expect(response.status).toBe(500);
+      expect(response.body.message).toBe('Server error');
+    });
+  });
+ 
+  // -------------------------------------------------------------------------
+  // GET /reservations – null room branch (line 38 analogue in GET /)
+  // -------------------------------------------------------------------------
+  describe('GET /reservations – null room branch', () => {
+    it('should handle null room gracefully and return hotel_id as undefined', async () => {
+      const mockReservation = {
+        ...createMockReservation(),
+        toObject: () => createMockReservation(),
+        _id: 'res123',
+        room_id: 'missing-room',
+      };
+ 
+      (jwt.verify as jest.Mock).mockReturnValue({ userId: 'user123', role: 'user' });
+      (Reservation.find as jest.Mock).mockReturnValue({
+        sort: jest.fn().mockResolvedValue([mockReservation]),
+      });
+      (Room.findById as jest.Mock).mockResolvedValue(null);
+ 
+      const response = await request(app)
+        .get('/reservations')
+        .set('Cookie', ['jwtToken=valid-token']);
+ 
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      // hotel_id should be undefined / not present when room is null
+      expect(response.body[0].hotel_id).toBeUndefined();
+    });
+  });
 });
