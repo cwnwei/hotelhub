@@ -62,12 +62,12 @@ describe('Guest Routes Integration Tests', () => {
       expect(response.body.length).toBe(2);
 
       // Verify guests are returned with correct fields
-      const guestIds = response.body.map((g) => g.id);
+      const guestIds = response.body.map((g: any) => g.id);
       expect(guestIds).toContain(guest1._id.toString());
       expect(guestIds).toContain(guest2._id.toString());
 
       // Verify response includes expected fields
-      response.body.forEach((guest) => {
+      response.body.forEach((guest: any) => {
         expect(guest).toHaveProperty('id');
         expect(guest).toHaveProperty('full_name');
         expect(guest).toHaveProperty('email');
@@ -124,9 +124,9 @@ describe('Guest Routes Integration Tests', () => {
       // Verify update in database
       const dbUser = await User.findById(guest._id);
       expect(dbUser).toBeTruthy();
-      expect(dbUser.full_name).toBe('Updated Name');
-      expect(dbUser.phone).toBe('2222222222');
-      expect(dbUser.email).toBe('original@example.com');
+      expect(dbUser!.full_name).toBe('Updated Name');
+      expect(dbUser!.phone).toBe('2222222222');
+      expect(dbUser!.email).toBe('original@example.com');
     });
 
     it('should return 404 for non-existent guest', async () => {

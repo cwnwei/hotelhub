@@ -24,7 +24,7 @@ export const loginUser = async (email: string, password: string) => {
  * @param role - User role ('user' or 'admin'), defaults to 'user'
  * @returns Object containing user document, tokens, and formatted cookies
  */
-export const createAuthenticatedUser = async (role = 'user') => {
+export const createAuthenticatedUser = async (role = 'user'): Promise<any> => {
   const user = await createUser({ role });
   const token = generateAccessToken(user._id.toString(), user.role);
   const refreshToken = generateRefreshToken(user._id.toString());
@@ -40,7 +40,7 @@ export const createAuthenticatedUser = async (role = 'user') => {
  * Convenience function to create an authenticated admin user.
  * @returns Object containing admin user document, tokens, and formatted cookies
  */
-export const createAdmin = async () => {
+export const createAdmin = async (): Promise<any> => {
   return await createAuthenticatedUser('admin');
 };
 

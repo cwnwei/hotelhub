@@ -43,7 +43,7 @@ describe('Hotel Routes Integration Tests', () => {
       expect(response.body.length).toBe(2);
 
       // Verify hotels are returned with id field
-      const hotelIds = response.body.map((h) => h.id);
+      const hotelIds = response.body.map((h: any) => h.id);
       expect(hotelIds).toContain(hotel1._id.toString());
       expect(hotelIds).toContain(hotel2._id.toString());
     });
@@ -129,8 +129,8 @@ describe('Hotel Routes Integration Tests', () => {
       // Verify hotel is in database
       const dbHotel = await Hotel.findById(response.body.id);
       expect(dbHotel).toBeTruthy();
-      expect(dbHotel.name).toBe('Luxury Resort & Spa');
-      expect(dbHotel.address).toBe('123 Sunset Boulevard');
+      expect(dbHotel!.name).toBe('Luxury Resort & Spa');
+      expect(dbHotel!.address).toBe('123 Sunset Boulevard');
     });
 
     it('should return 400 when hotel with same name and address already exists', async () => {
@@ -229,9 +229,9 @@ describe('Hotel Routes Integration Tests', () => {
 
       // Verify update in database
       const dbHotel = await Hotel.findById(hotel._id);
-      expect(dbHotel.name).toBe('Renovated Grand Hotel');
-      expect(dbHotel.star_rating).toBe(4);
-      expect(dbHotel.phone).toBe('+1-503-555-0999');
+      expect(dbHotel!.name).toBe('Renovated Grand Hotel');
+      expect(dbHotel!.star_rating).toBe(4);
+      expect(dbHotel!.phone).toBe('+1-503-555-0999');
     });
 
     it('should return 404 for non-existent hotel', async () => {

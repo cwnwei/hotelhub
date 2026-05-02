@@ -64,6 +64,10 @@ interface CreateReservationOptions {
   check_out_date?: string;
   num_guests?: number;
   total_amount?: number;
+  amount_paid?: number;
+  payment_status?: string;
+  guest_name?: string;
+  room_number?: string;
   status?: string;
 }
 
@@ -72,7 +76,7 @@ interface CreateReservationOptions {
  * @param overrides - Optional fields to override default user values
  * @returns Promise resolving to the created User document
  */
-export const createUser = async (overrides: Partial<CreateUserOptions> = {}) => {
+export const createUser = async (overrides: Partial<CreateUserOptions> = {}): Promise<any> => {
   const defaultUser = {
     full_name: DEFAULT_USER_NAME,
     email: `test-${Date.now()}-${Math.random()}@example.com`,
@@ -80,7 +84,7 @@ export const createUser = async (overrides: Partial<CreateUserOptions> = {}) => 
     password: await bcrypt.hash(DEFAULT_PASSWORD, BCRYPT_ROUNDS),
     role: 'user',
   };
-  return await User.create({ ...defaultUser, ...overrides });
+  return await User.create({ ...defaultUser, ...overrides } as any);
 };
 
 /**
@@ -88,7 +92,7 @@ export const createUser = async (overrides: Partial<CreateUserOptions> = {}) => 
  * @param overrides - Optional fields to override default hotel values
  * @returns Promise resolving to the created Hotel document
  */
-export const createHotel = async (overrides: Partial<CreateHotelOptions> = {}) => {
+export const createHotel = async (overrides: Partial<CreateHotelOptions> = {}): Promise<any> => {
   const defaultHotel = {
     name: DEFAULT_HOTEL_NAME,
     address: DEFAULT_ADDRESS,
@@ -107,7 +111,7 @@ export const createHotel = async (overrides: Partial<CreateHotelOptions> = {}) =
  * @param overrides - Optional fields to override default room values
  * @returns Promise resolving to the created Room document
  */
-export const createRoom = async (overrides: Partial<CreateRoomOptions> = {}) => {
+export const createRoom = async (overrides: Partial<CreateRoomOptions> = {}): Promise<any> => {
   let hotelId = overrides.hotel_id;
   if (!hotelId) {
     const hotel = await createHotel();
@@ -123,7 +127,7 @@ export const createRoom = async (overrides: Partial<CreateRoomOptions> = {}) => 
     amenities: DEFAULT_AMENITIES,
     status: DEFAULT_STATUS,
   };
-  return await Room.create({ ...defaultRoom, ...overrides });
+  return await Room.create({ ...defaultRoom, ...overrides } as any);
 };
 
 /**
@@ -133,7 +137,7 @@ export const createRoom = async (overrides: Partial<CreateRoomOptions> = {}) => 
  * @param overrides - Optional fields to override default reservation values
  * @returns Promise resolving to the created Reservation document
  */
-export const createReservation = async (overrides: Partial<CreateReservationOptions> = {}) => {
+export const createReservation = async (overrides: Partial<CreateReservationOptions> = {}): Promise<any> => {
   let guestId = overrides.guest_id;
   if (!guestId) {
     const user = await createUser();
