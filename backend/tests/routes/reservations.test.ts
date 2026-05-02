@@ -4,7 +4,7 @@ import Reservation from '../../src/models/Reservation';
 import Room from '../../src/models/Room';
 import User from '../../src/models/User';
 import jwt from 'jsonwebtoken';
-import { createMockReservation, createMockRoom, createMockUser, createValidationError, createCastError, createJWTError } from '../setup/testUtils';
+import { createMockReservation, createMockRoom, createMockUser, createValidationError, createCastError, createJWTError, getFutureDate, getPastDate } from '../setup/testUtils';
 
 // Mock dependencies
 jest.mock('../../src/models/Reservation');
@@ -132,8 +132,8 @@ describe('Reservation Routes', () => {
         .send({
           guest_id: 'user123',
           room_id: 'room123',
-          check_in_date: '2026-05-01',
-          check_out_date: '2026-05-05',
+          check_in_date: getFutureDate(1),
+          check_out_date: getFutureDate(5),
           num_guests: 2
         });
 
@@ -148,8 +148,8 @@ describe('Reservation Routes', () => {
         .post('/reservations')
         .send({
           room_id: 'room123',
-          check_in_date: '2026-05-01',
-          check_out_date: '2026-05-05'
+          check_in_date: getFutureDate(1),
+          check_out_date: getFutureDate(5)
         });
 
       expect(response.status).toBe(401);
@@ -167,8 +167,8 @@ describe('Reservation Routes', () => {
         .send({
           guest_id: 'user123',
           room_id: 'room123',
-          check_in_date: '2026-05-01',
-          check_out_date: '2026-05-05',
+          check_in_date: getFutureDate(1),
+          check_out_date: getFutureDate(5),
           num_guests: 2
         });
 
