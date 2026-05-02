@@ -9,6 +9,7 @@ import { HashRouter as Router, Route, Routes, useLocation, useNavigate } from 'r
 const LoginPage = React.lazy(() => import('./pages/Login'));
 const RegisterPage = React.lazy(() => import('./pages/Register'));
 const BookRoom = React.lazy(() => import('./pages/BookRoom'));
+const ConfirmBooking = React.lazy(() => import('./pages/ConfirmBooking'));
 const MyReservations = React.lazy(() => import('./pages/MyReservation'));
 const Home = React.lazy(() => import('./pages/Home'));
 import PageNotFound from './lib/PageNotFound';
@@ -146,6 +147,9 @@ const AuthenticatedApp = () => {
       <Route path="/" element={<HomeRoute />} />
       <Route path="/BookRoom" element={
         <ProtectedGuestRoute Component={BookRoom} />
+      } />
+      <Route path="/ConfirmBooking" element={
+        <ProtectedGuestRoute Component={ConfirmBooking} />
       } />
       <Route path="/MyReservations" element={
         <ProtectedGuestRoute Component={MyReservations} />

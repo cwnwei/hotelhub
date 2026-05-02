@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Users, Wifi, Tv, Wind, Coffee, ChevronLeft } from "lucide-react";
 import { differenceInDays } from "date-fns";
+import { roomClient } from "@/api/roomClient";
 
 const amenityIcons = {
   wifi: Wifi,
@@ -25,34 +26,55 @@ const roomTypeLabels = {
 };
 
 export default function BookRoom() {
-  const urlParams = new URLSearchParams(window.location.search);
-  
+  const navigate = useNavigate();
+  const location = useLocation();
+  const urlParams = new URLSearchParams(location.search);
+
   const [checkIn, setCheckIn] = useState(urlParams.get("checkIn") || "");
   const [checkOut, setCheckOut] = useState(urlParams.get("checkOut") || "");
   const [guests, setGuests] = useState(parseInt(urlParams.get("guests")) || 2);
-  const [roomType, setRoomType] = useState("all");
-  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [roomType, setRoomType] = useState(urlParams.get("roomType") || "all");
+  // const [selectedRoom, setSelectedRoom] = useState(null);
 
-  const { data: rooms = [], isLoading } = useQuery({
-    queryKey: ["availableRooms"],
+  // Validate dates before querying
+  const hasValidDates = checkIn && checkOut && new Date(checkOut) > new Date(checkIn);
+
+  const { data: rooms = [], isLoading, error } = useQuery({
+    queryKey: hasValidDates
+      ? ["searchRooms", checkIn, checkOut, guests, roomType]
+      : ["availableRooms"],
     queryFn: async () => {
-      // base44 removed — return empty room list for now
-      return [];
-    }
+      if (hasValidDates) {
+        return roomClient.search({ checkIn, checkOut, guests, roomType });
+      }
+      return roomClient.list();
+    },
   });
 
-  const filteredRooms = rooms.filter(room => {
-    const matchesType = roomType === "all" || room.room_type === roomType;
-    const matchesGuests = room.max_guests >= guests;
-    return matchesType && matchesGuests;
-  });
+  // Only apply client-side filtering when using list() endpoint
+  const filteredRooms = hasValidDates
+    ? rooms
+    : rooms.filter(room => {
+        const matchesType = roomType === "all" || room.room_type === roomType;
+        const matchesGuests = room.max_guests >= guests;
+        return matchesType && matchesGuests;
+      });
 
   const nights = checkIn && checkOut 
     ? differenceInDays(new Date(checkOut), new Date(checkIn)) 
     : 0;
 
   const handleBookNow = (room) => {
-
+    const params = new URLSearchParams({
+      roomId: room.id,
+      checkIn,
+      checkOut,
+      guests
+    });
+    navigate({
+      pathname: createPageUrl("ConfirmBooking"),
+      search: params.toString()
+    });
   };
 
   return (
@@ -130,10 +152,24 @@ export default function BookRoom() {
           </div>
         </Card>
 
+        {/* Show validation error if dates are invalid */}
+        {checkIn && checkOut && new Date(checkOut) <= new Date(checkIn) && (
+          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
+            Check-out date must be after check-in date
+          </div>
+        )}
+
+        {/* Show API error if search fails */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+            {error.message}
+          </div>
+        )}
+
         {/* Results */}
         <div className="mb-4">
           <h2 className="text-2xl font-light text-slate-900">
-            Available Rooms
+            {hasValidDates ? "Available Rooms for Your Dates" : "Browse All Rooms"}
             <span className="text-sm text-slate-500 ml-2">({filteredRooms.length} found)</span>
           </h2>
         </div>
@@ -146,7 +182,11 @@ export default function BookRoom() {
           </div>
         ) : filteredRooms.length === 0 ? (
           <Card className="p-12 text-center border-0 shadow-sm">
-            <p className="text-slate-500">No rooms available matching your criteria</p>
+            <p className="text-slate-500">
+              {hasValidDates
+                ? "No rooms available for the selected dates. Try different dates or filters."
+                : "No rooms available matching your criteria"}
+            </p>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -171,6 +211,9 @@ export default function BookRoom() {
                           {roomTypeLabels[room.room_type] || room.room_type}
                         </h3>
                         <p className="text-sm text-slate-500">Room {room.room_number} • Floor {room.floor}</p>
+                        {room.hotel_name && (
+                          <p className="text-xs text-amber-600 font-medium mt-0.5">{room.hotel_name}</p>
+                        )}
                       </div>
                       <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-0">Available</Badge>
                     </div>
