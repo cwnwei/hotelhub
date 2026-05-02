@@ -4,8 +4,8 @@
  */
 
 export const TEST_CONSTANTS = {
-  ACCESS_TOKEN_SECRET: 'test-access-secret-key-12345',
-  REFRESH_TOKEN_SECRET: 'test-refresh-secret-key-12345',
+  ACCESS_TOKEN_SECRET: 'test-access-secret',
+  REFRESH_TOKEN_SECRET: 'test-refresh-secret',
   NODE_ENV: 'test',
   MONGODB_URI: 'mongodb://localhost:27017/hotelhub-test',
   PORT: 3001,
