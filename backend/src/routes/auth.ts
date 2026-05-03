@@ -65,16 +65,16 @@ authrouter.post("/login", async (req, res) => {
     // save refresh_token to client cookies
     res.cookie("refreshToken", refresh_token, {
         httpOnly: true,
-        secure: false, // false for local testinng
-        sameSite: "lax",
+        secure: true, // false for local testinng
+        sameSite: "none",
         path: "/auth/refresh",
         maxAge: 7 * 24 * 60 * 60 * 1000,
     })
 
     res.cookie("jwtToken", jwt_token, {
         httpOnly: true,
-        secure: false, // false for local testinng
-        sameSite: "lax",
+        secure: true, // false for local testinng
+        sameSite: "none",
         path: "/",
         maxAge: 5 * 60 * 1000,
     })
@@ -119,8 +119,8 @@ authrouter.post("/refresh", async (req, res) => {
         const new_jwt_token = generateAccessToken(user.id, user.role);
         res.cookie("jwtToken", new_jwt_token, {
             httpOnly: true,
-            secure: false, // false for local testinng
-            sameSite: "lax",
+            secure: true, // false for local testinng
+            sameSite: "none",
             path: "/",
             maxAge: 5 * 60 * 1000,
         })
