@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
     setAuthError(null);
 
     if (shouldRedirect) {
-      window.location.href = '/';
+      window.location.href = '/#/';
     }
   };
 
