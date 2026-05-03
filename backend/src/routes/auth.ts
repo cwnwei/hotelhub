@@ -7,21 +7,41 @@ import { generateAccessToken, generateRefreshToken, UserPayload } from "../utils
 const authrouter = express.Router();
 
 authrouter.post("/register", async (req, res) => {
-    const { name, email, phone, password, role } = req.body;
+    try {
+        const { name, email, phone, password, role } = req.body;
 
-    const user = await User.findOne({ email })
-    if (user) return res.status(400).json("User already exists")
+        // Validate required fields
+        if (!name || !email || !phone || !password) {
+            return res.status(400).json({
+                message: 'Validation failed',
+                errors: ['Name, email, phone, and password are required']
+            });
+        }
 
-    const hashed_password = await bcrypt.hash(password, 10)
-    const new_user = await User.create({
-        'full_name': name,
-        phone,
-        email,
-        'password': hashed_password,
-        role,
-    })
+        const user = await User.findOne({ email })
+        if (user) return res.status(400).json("User already exists")
 
-    res.status(200).json('User created successfully')
+        const hashed_password = await bcrypt.hash(password, 10)
+        const new_user = await User.create({
+            'full_name': name,
+            phone,
+            email,
+            'password': hashed_password,
+            role,
+        })
+
+        res.status(200).json('User created successfully')
+    } catch (error: any) {
+        // Handle Mongoose validation errors
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                message: 'Validation failed',
+                errors: Object.values(error.errors).map((err: any) => err.message)
+            });
+        }
+        // Handle other errors
+        return res.status(500).json({ message: 'Internal server error' });
+    }
 })
 
 authrouter.post("/login", async (req, res) => {

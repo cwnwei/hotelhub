@@ -53,7 +53,8 @@ describe('RBAC Middleware', () => {
       const middleware = authorizeRoles('admin');
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(mockResponse.sendStatus).toHaveBeenCalledWith(403);
+      expect(mockResponse.status).toHaveBeenCalledWith(403);
+      expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Insufficient permissions' });
       expect(mockNext).not.toHaveBeenCalled();
     });
 
