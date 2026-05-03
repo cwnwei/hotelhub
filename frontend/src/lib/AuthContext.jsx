@@ -80,10 +80,6 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     localStorage.removeItem('user');
     setAuthError(null);
-
-    if (shouldRedirect) {
-      window.location.href = '/#/';
-    }
   };
 
   const navigateToLogin = () => {
