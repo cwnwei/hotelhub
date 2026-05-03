@@ -1,6 +1,7 @@
 name: Deploy Frontend to GitHub Pages and Backend to Render
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
 
@@ -8,6 +9,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  issues: write
 
 concurrency:
   group: "pages"
@@ -84,5 +86,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           docker_name: 'ghcr.io/zaproxy/zaproxy:stable'
           target: 'https://cwnwei.github.io/hotelhub'
-          rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a'
