@@ -10,9 +10,12 @@
     "start": "node dist/src/app.js",
     "build": "tsc",
     "test": "jest",
+    "test:unit": "jest --selectProjects unit --coverage",
+    "test:integration": "jest --selectProjects integration --coverage",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:verbose": "jest --verbose"
+    "test:verbose": "jest --verbose",
+    "test:ci": "npm run test:unit && npm run test:integration"
   },
   "imports": {
     "#*": "./src/*"

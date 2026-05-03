@@ -4,7 +4,7 @@ import Room from '../../src/models/Room';
 import Hotel from '../../src/models/Hotel';
 import Reservation from '../../src/models/Reservation';
 import jwt from 'jsonwebtoken';
-import { createMockRoom, createMockHotel, createValidationError, createCastError, createDuplicateKeyError } from '../setup/testUtils';
+import { createMockRoom, createMockHotel, createValidationError, createCastError, createDuplicateKeyError, getFutureDate, getPastDate } from '../setup/testUtils';
 
 // Mock dependencies
 jest.mock('../../src/models/Room');
@@ -69,8 +69,8 @@ describe('Room Routes', () => {
       const response = await request(app)
         .get('/rooms/search')
         .query({
-          check_in_date: '2026-05-01',
-          check_out_date: '2026-05-05',
+          check_in_date: getFutureDate(1),
+          check_out_date: getFutureDate(5),
           num_guests: 2
         });
 
@@ -89,11 +89,13 @@ describe('Room Routes', () => {
     });
 
     it('should return 400 for invalid date range', async () => {
+      const checkInDate = getFutureDate(5);
+      const checkOutDate = getFutureDate(1);
       const response = await request(app)
         .get('/rooms/search')
         .query({
-          check_in_date: '2026-05-05',
-          check_out_date: '2026-05-01', // Check-out before check-in
+          check_in_date: checkInDate,
+          check_out_date: checkOutDate, // Check-out before check-in
           num_guests: 2
         });
 
@@ -105,8 +107,8 @@ describe('Room Routes', () => {
       const response = await request(app)
         .get('/rooms/search')
         .query({
-          check_in_date: '2026-05-01',
-          check_out_date: '2026-05-05',
+          check_in_date: getFutureDate(1),
+          check_out_date: getFutureDate(5),
           num_guests: 'abc'
         });
 
@@ -118,8 +120,8 @@ describe('Room Routes', () => {
       const response = await request(app)
         .get('/rooms/search')
         .query({
-          check_in_date: '2026-05-01',
-          check_out_date: '2026-05-05',
+          check_in_date: getFutureDate(1),
+          check_out_date: getFutureDate(5),
           num_guests: 0
         });
 
@@ -132,7 +134,7 @@ describe('Room Routes', () => {
         .get('/rooms/search')
         .query({
           check_in_date: 'invalid-date',
-          check_out_date: '2026-05-05',
+          check_out_date: getFutureDate(5),
           num_guests: 2
         });
 
@@ -144,7 +146,7 @@ describe('Room Routes', () => {
       const response = await request(app)
         .get('/rooms/search')
         .query({
-          check_in_date: '2026-05-01',
+          check_in_date: getFutureDate(1),
           check_out_date: 'invalid-date',
           num_guests: 2
         });
@@ -157,8 +159,8 @@ describe('Room Routes', () => {
       const response = await request(app)
         .get('/rooms/search')
         .query({
-          check_in_date: '2020-01-01',
-          check_out_date: '2020-01-05',
+          check_in_date: getPastDate(365),
+          check_out_date: getPastDate(361),
           num_guests: 2
         });
 
@@ -183,8 +185,8 @@ describe('Room Routes', () => {
       const response = await request(app)
         .get('/rooms/search')
         .query({
-          check_in_date: '2026-05-01',
-          check_out_date: '2026-05-05',
+          check_in_date: getFutureDate(1),
+          check_out_date: getFutureDate(5),
           num_guests: 2,
           min_price: 100
         });
@@ -210,8 +212,8 @@ describe('Room Routes', () => {
       const response = await request(app)
         .get('/rooms/search')
         .query({
-          check_in_date: '2026-05-01',
-          check_out_date: '2026-05-05',
+          check_in_date: getFutureDate(1),
+          check_out_date: getFutureDate(5),
           num_guests: 2,
           max_price: 200
         });
@@ -237,8 +239,8 @@ describe('Room Routes', () => {
       const response = await request(app)
         .get('/rooms/search')
         .query({
-          check_in_date: '2026-05-01',
-          check_out_date: '2026-05-05',
+          check_in_date: getFutureDate(1),
+          check_out_date: getFutureDate(5),
           num_guests: 2,
           hotel_name: 'Grand'
         });

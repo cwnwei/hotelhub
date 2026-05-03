@@ -12,7 +12,7 @@ export const authorizeRoles = (...allowedRoles: string[]) => {
             const decoded = jwt.verify(jwtToken, process.env.ACCESS_TOKEN_SECRET!) as UserPayload;
 
             if (!allowedRoles.includes(decoded.role)) {
-                return res.sendStatus(403);
+                return res.status(403).json({ message: 'Insufficient permissions' });
             }
 
             next();
