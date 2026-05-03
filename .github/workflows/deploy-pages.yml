@@ -65,7 +65,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
   deploy-render:
-    needs: build   # 👈 wait for BOTH jobs
+    needs: build   # wait for BOTH jobs
     runs-on: ubuntu-latest
 
     steps:
