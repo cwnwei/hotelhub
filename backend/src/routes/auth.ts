@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken";
 import User from "../models/User"
 import { generateAccessToken, generateRefreshToken, UserPayload } from "../utils/generateToken";
+import { UserAdapter } from "../adapters/UserAdapter";
 
 const authrouter = express.Router();
 
@@ -22,13 +23,8 @@ authrouter.post("/register", async (req, res) => {
         if (user) return res.status(400).json("User already exists")
 
         const hashed_password = await bcrypt.hash(password, 10)
-        const new_user = await User.create({
-            'full_name': name,
-            phone,
-            email,
-            'password': hashed_password,
-            role,
-        })
+        const dbModel = UserAdapter.toDBModel({ name, email, phone, hashedPassword: hashed_password, role });
+        const new_user = await User.create(dbModel);
 
         res.status(200).json('User created successfully')
     } catch (error: any) {
